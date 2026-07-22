@@ -37,11 +37,30 @@
 - [x] 分阶段 OpenCode 提示词
 - [x] 30 分钟演示流程
 - [x] 确定 RuoYi-Vue 3.9.2 及源码位置
-- [ ] 现场通过 OpenCode 生成 AC 和测试用例
+- [x] 通过 OpenCode 生成 AC、测试用例和实现差异分析
 - [x] 创建独立 Java API 自动化工程
 - [x] 创建 Playwright Java UI 核心流程
 - [x] 准备可重复的需求差异测试
 - [x] 完成 Maven 核心闭环执行验证
 - [x] 验证需求差异用例可稳定失败并自动清理数据
 - [x] 准备需求分析、AC、用例、实现对照和报告 checkpoints
-- [ ] 由 OpenCode 在演示流程中生成并固化最终 outputs
+- [x] 由 OpenCode 生成并固化最终 outputs
+- [x] 完成 API、UI、自删除保护真实执行
+- [x] 形成缺陷清单和人工评审门禁
+- [ ] 完成一次严格计时的 30 分钟彩排
+
+## 执行入口
+
+```bash
+export RUOYI_BASE_URL=http://localhost:8080
+export RUOYI_UI_URL=http://localhost:8081
+export RUOYI_ADMIN_USERNAME='<test-admin>'
+export RUOYI_ADMIN_PASSWORD='<test-password>'
+
+./scripts/check-demo-env.sh
+./scripts/run-api-tests.sh -Dtest=UserManagementP0ApiTest
+./scripts/run-ui-tests.sh
+./scripts/run-all-tests.sh
+```
+
+完整 API 验收会如实报告当前需求差异，因此整体返回非零状态属于预期测试结论，不应通过降低断言变成绿色。

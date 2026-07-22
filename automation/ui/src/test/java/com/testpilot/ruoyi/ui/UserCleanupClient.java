@@ -37,8 +37,8 @@ final class UserCleanupClient {
 
     private String login() {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("username", requiredEnvironment("RUOYI_USERNAME"));
-        body.put("password", requiredEnvironment("RUOYI_PASSWORD"));
+        body.put("username", requiredEnvironment("RUOYI_ADMIN_USERNAME"));
+        body.put("password", requiredEnvironment("RUOYI_ADMIN_PASSWORD"));
         body.put("code", "");
         body.put("uuid", "");
 

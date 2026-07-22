@@ -37,5 +37,5 @@ echo "[OK] Java: $(java -version 2>&1 | head -1)"
 echo "[OK] Maven: $(mvn -version 2>&1 | head -1)"
 echo "[OK] OpenCode: $(opencode --version)"
 
-[[ -n "${RUOYI_USERNAME:-}" ]] || echo "[WARN] 未设置 RUOYI_USERNAME"
-[[ -n "${RUOYI_PASSWORD:-}" ]] || echo "[WARN] 未设置 RUOYI_PASSWORD"
+[[ -n "${RUOYI_ADMIN_USERNAME:-}" ]] || echo "[WARN] 未设置 RUOYI_ADMIN_USERNAME"
+[[ -n "${RUOYI_ADMIN_PASSWORD:-}" ]] || echo "[WARN] 未设置 RUOYI_ADMIN_PASSWORD"

@@ -85,8 +85,8 @@ class UserManagementUiTest {
 
     private void login() {
         page.navigate(uiUrl + "/login");
-        page.getByPlaceholder("账号").fill(requiredEnvironment("RUOYI_USERNAME"));
-        page.getByPlaceholder("密码").fill(requiredEnvironment("RUOYI_PASSWORD"));
+        page.getByPlaceholder("账号").fill(requiredEnvironment("RUOYI_ADMIN_USERNAME"));
+        page.getByPlaceholder("密码").fill(requiredEnvironment("RUOYI_ADMIN_PASSWORD"));
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("登 录").setExact(true)).click();
         page.waitForURL(url -> !url.contains("/login"));
     }

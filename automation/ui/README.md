@@ -24,8 +24,8 @@ mvn -f automation/ui/pom.xml \
 ## 执行
 
 ```bash
-RUOYI_USERNAME=admin \
-RUOYI_PASSWORD='你的测试密码' \
+RUOYI_ADMIN_USERNAME=admin \
+RUOYI_ADMIN_PASSWORD='你的测试密码' \
 HEADLESS=false \
 SLOW_MO=300 \
 ./scripts/run-ui-tests.sh

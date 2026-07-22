@@ -6,5 +6,7 @@
 2. `user-management-test-cases.md`
 3. `implementation-gap-analysis.md`
 4. `test-execution-report.md`
+5. `defect-report.md`
+6. `review-signoff.md`
 
-除本说明外，其余文件应由演示过程中的 OpenCode 生成并经过人工评审。
+前四项由演示过程中的 OpenCode 生成并经过人工评审；缺陷清单由真实执行结果产生，确认单由团队人工签署。
