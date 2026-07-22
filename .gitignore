@@ -1,0 +1,23 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Java / Node build outputs
+**/target/
+**/node_modules/
+**/dist/
+
+# Runtime secrets and local settings
+.env
+.env.*
+!.env.example
+**/application-local.yml
+
+# Test reports
+**/allure-results/
+**/allure-report/
+**/test-results/
+
+# OS
+.DS_Store
