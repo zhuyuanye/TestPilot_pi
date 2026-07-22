@@ -94,11 +94,13 @@ docs/requirements/user-management.md
 
 ## 屏幕操作
 
-复制并执行：
+执行标准化启动命令：
 
 ```text
-prompts/01-requirement-analysis.md
+/qa-start docs/requirements/user-management.md /Users/zhuyuanye/Documents/Code/RuoYi-Vue demo-live
 ```
+
+该命令会自动加载 `evidence-driven-testing` Skill；`prompts/01-requirement-analysis.md` 仅作为讲师查看的完整提示词参考。
 
 等待 Agent 输出明确规则、歧义、风险和待确认问题。
 
@@ -156,7 +158,7 @@ prompts/01-requirement-analysis.md
 >
 > 第八，错误提示不要求逐字匹配，但必须返回失败状态和可理解的信息。
 
-然后输入 Prompt 01 中的收口指令，让 Agent 汇总“已澄清、仍未决、冲突”。
+然后要求 Agent 根据产品回复更新 `demo-live/drafts/01-requirement-analysis.md`，汇总“已澄清、仍未决、冲突”，但不要推进阶段。
 
 ## 讲师说
 
@@ -168,7 +170,13 @@ prompts/01-requirement-analysis.md
 
 如果 Agent 已确认无阻塞项，讲师说：
 
-> 这份需求分析可以落盘。请写入本轮现场工作区，然后停止，不要提前生成 AC。
+> 需求规则、待确认项和产品澄清已经人工评审，现在批准需求分析阶段。
+
+执行：
+
+```text
+/qa-approve demo-live "需求规则、待确认项和产品澄清已评审，无阻塞项"
+```
 
 ---
 
@@ -185,7 +193,7 @@ prompts/01-requirement-analysis.md
 执行：
 
 ```text
-prompts/02-generate-ac.md
+/qa-next demo-live
 ```
 
 ## 等待时讲师说
@@ -211,7 +219,7 @@ prompts/02-generate-ac.md
 确认后输入：
 
 ```text
-AC 评审通过
+/qa-approve demo-live "AC 来源、边界、权限和数据一致性已评审"
 ```
 
 ## 讲师说
@@ -233,7 +241,7 @@ AC 评审通过
 执行：
 
 ```text
-prompts/03-test-design.md
+/qa-next demo-live
 ```
 
 ## 等待时讲师说
@@ -255,7 +263,7 @@ prompts/03-test-design.md
 检查 AC—TC—执行层追踪矩阵后输入：
 
 ```text
-测试设计评审通过
+/qa-approve demo-live "测试分层、边界、优先级、数据和清理策略已评审"
 ```
 
 ## 讲师说
@@ -277,7 +285,7 @@ prompts/03-test-design.md
 执行：
 
 ```text
-prompts/04-implementation-analysis.md
+/qa-next demo-live
 ```
 
 ## 等待时讲师说
@@ -305,7 +313,7 @@ prompts/04-implementation-analysis.md
 输入：
 
 ```text
-实现分析评审通过
+/qa-approve demo-live "实现证据和需求差异已抽查评审"
 ```
 
 ---
@@ -325,7 +333,7 @@ prompts/04-implementation-analysis.md
 执行：
 
 ```text
-prompts/05-generate-api-automation.md
+/qa-next demo-live
 ```
 
 Agent 输出计划后，讲师说：
@@ -337,8 +345,11 @@ Agent 输出计划后，讲师说：
 输入：
 
 ```text
-API 计划确认
+/qa-approve demo-live "API 范围、断言、动态数据、清理和证据计划已确认"
+/qa-next demo-live
 ```
+
+第一条命令只批准计划，第二条命令才允许 OpenCode 编码和执行。
 
 ## Agent 编码时讲师说
 
@@ -378,6 +389,14 @@ printf '%s\n' "$api_status" | tee demo-live/logs/api-p0.exit-code
 
 > 当前 P0 闭环通过。但绿色只说明这些已执行场景满足断言，不代表所有 AC 都已经覆盖。我们还要查看追踪矩阵和未覆盖风险。
 
+## API 结果门禁
+
+检查原始日志、退出码、Surefire XML、失败分类和清理结果后执行：
+
+```text
+/qa-approve demo-live "API 真实执行结果、失败分类和数据清理已评审"
+```
+
 ## 超时处理
 
 如果 API 代码生成超过三分钟且无法完成，讲师必须说：
@@ -407,7 +426,7 @@ printf '%s\n' "$api_status" | tee demo-live/logs/api-p0.exit-code
 执行：
 
 ```text
-prompts/06-generate-ui-automation.md
+/qa-next demo-live
 ```
 
 Agent 输出计划后，讲师说：
@@ -419,8 +438,11 @@ Agent 输出计划后，讲师说：
 输入：
 
 ```text
-UI 计划确认
+/qa-approve demo-live "UI 定位、断言、清理、Trace 和截图计划已确认"
+/qa-next demo-live
 ```
+
+第一条命令只批准计划，第二条命令才允许编码和执行。
 
 ## Agent 编码时讲师说
 
@@ -466,6 +488,14 @@ find demo-live/automation/ui/target -type f \
 > 这里我们打开本轮 `trace.zip`。大家可以看到登录后的页面状态、新增用户的 POST 请求，以及删除用户的 DELETE 请求。
 >
 > Trace 可能包含页面输入和请求信息，所以它只保存在本地或受控存储中，不提交到公开仓库。
+
+## UI 结果门禁
+
+检查浏览器行为、日志、退出码、Surefire XML、Trace、截图和清理结果后执行：
+
+```text
+/qa-approve demo-live "UI 真实执行结果、Trace、截图和数据清理已评审"
+```
 
 ---
 
@@ -531,10 +561,11 @@ printf '%s\n' "$challenge_status" | tee demo-live/logs/ui-negative-challenge.exi
 
 ## 屏幕操作
 
-执行：
+先执行独立只读证据审计，再让状态机生成诊断候选：
 
 ```text
-prompts/07-execution-diagnosis-report.md
+/qa-evidence demo-live
+/qa-next demo-live
 ```
 
 ## 等待时讲师说
@@ -558,7 +589,7 @@ prompts/07-execution-diagnosis-report.md
 输入：
 
 ```text
-执行结论确认
+/qa-approve demo-live "测试统计、失败分类、缺陷和追踪关系已核验"
 ```
 
 允许 Agent 生成：
@@ -578,7 +609,7 @@ demo-live/outputs/traceability-matrix.md
 执行：
 
 ```text
-prompts/08-final-review.md
+/qa-review demo-live
 ```
 
 快速展示追踪关系和待签字项。

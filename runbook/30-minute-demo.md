@@ -77,46 +77,79 @@ open presenter/live-demo-outline.html
 | 时间 | 现场动作 | 必须让观众看到 | 人工控制点 |
 |---|---|---|---|
 | 00:00–02:00 | 说明目标、边界、清空 `demo-live` | 空工作区和基线 commit | 强调 Agent 不替代签字 |
-| 02:00–05:00 | Prompt 01 需求分析 | Agent 从原始需求提出问题 | 指出一项遗漏或假设 |
-| 05:00–07:30 | 讲师扮演产品逐项澄清 | 澄清前后结论变化 | 确认仍无阻塞项 |
-| 07:30–10:00 | Prompt 02 生成候选 AC | 候选稿、自检、人工修正 | 输入“AC 评审通过”后才写文件 |
-| 10:00–12:30 | Prompt 03 测试设计 | API/UI/人工分层和边界值 | 输入“测试设计评审通过” |
-| 12:30–15:30 | Prompt 04 实现分析 | Agent 打开真实 Java/Vue 文件取证 | 人工抽查两个源码位置 |
-| 15:30–20:30 | Prompt 05 现场生成 P0 API 自动化 | 计划→确认→编码→真实 HTTP 执行 | 失败不能通过改弱断言消除 |
-| 20:30–25:00 | Prompt 06 现场生成 UI 核心流程 | 有头浏览器、动态用户、真实请求 | 查看生成的截图和 Trace |
-| 25:00–28:00 | Prompt 07 核验证据和诊断 | XML、退出码、证据 SHA-256、缺陷分类 | 手动错误地址验证能变红 |
-| 28:00–30:00 | Prompt 08 人工评审收口 | 追踪矩阵、未覆盖项、角色签字空位 | Agent 不能自行宣布验收通过 |
+| 02:00–05:00 | `/qa-start` 需求分析 | Agent 从原始需求提出问题 | 指出一项遗漏或假设 |
+| 05:00–07:30 | 讲师扮演产品逐项澄清 | 澄清前后结论变化 | `/qa-approve` 批准需求分析 |
+| 07:30–10:00 | `/qa-next` 生成候选 AC | 候选稿、自检、人工修正 | `/qa-approve` 后才推进 |
+| 10:00–12:30 | `/qa-next` 测试设计 | API/UI/人工分层和边界值 | 人工批准测试设计 |
+| 12:30–15:30 | `/qa-next` 实现分析 | Agent 打开真实 Java/Vue 文件取证 | 人工抽查两个源码位置 |
+| 15:30–20:30 | API 计划门禁、编码与执行 | 计划→确认→编码→真实 HTTP 执行 | 结果还需第二次批准 |
+| 20:30–25:00 | UI 计划门禁、编码与执行 | 有头浏览器、动态用户、真实请求 | 查看截图和 Trace 后批准结果 |
+| 25:00–28:00 | `/qa-evidence` 与诊断 | XML、退出码、证据 SHA-256、缺陷分类 | 手动错误地址验证能变红 |
+| 28:00–30:00 | `/qa-review` 人工评审收口 | 追踪矩阵、未覆盖项、角色签字空位 | Agent 不能自行宣布验收通过 |
 
 时间是上限，不追求现场生成全量测试。API 只完成 P0 纵向闭环和一个稳定边界；其余用例保留在设计和追踪矩阵中。
 
-## 4. 现场逐步操作
+## 4. OpenCode 标准命令模式
+
+正式演示推荐使用项目级 Skill 和 Commands，而不是逐个复制长提示词。`prompts/` 保留为讲解依据和命令异常时的透明参考。
+
+启动本项目流程：
+
+```text
+/qa-start docs/requirements/user-management.md /Users/zhuyuanye/Documents/Code/RuoYi-Vue demo-live
+```
+
+产品澄清后，先要求 OpenCode 更新需求分析候选稿但不要推进，然后执行人工门禁：
+
+```text
+/qa-approve demo-live "需求分析和产品澄清已评审，无阻塞项"
+```
+
+后续阶段使用同一组命令推进：
+
+```text
+/qa-next demo-live
+/qa-status demo-live
+/qa-approve demo-live "本阶段人工评审说明"
+```
+
+API/UI 阶段各有两道门禁：第一次 `/qa-next` 只生成计划；计划批准后第二次 `/qa-next` 才编码和执行；结果还需再次批准。
+
+证据核验与最终审查：
+
+```text
+/qa-evidence demo-live
+/qa-review demo-live
+```
+
+命令定义位于 `.opencode/commands/`，通用流程规则位于 `.opencode/skills/evidence-driven-testing/`。完整用法见 `docs/opencode-testing-workflow.md`。
+
+## 5. 现场逐步操作
 
 ### 阶段 A：需求到测试设计
 
 1. 只打开 `docs/requirements/user-management.md`。
-2. 输入 `prompts/01-requirement-analysis.md`。
-3. 不展示 `presenter/product-clarifications.md`；讲师根据它扮演产品口头回复。
-4. 要求 Agent 总结“已澄清/仍未决/冲突”，人工确认后才落地分析。
-5. 输入 Prompt 02，先看候选 AC，再现场提出至少一条评审意见。
-6. 输入明确口令：`AC 评审通过`。
-7. 输入 Prompt 03，检查 AC—TC—执行层追踪和清理策略。
-8. 输入明确口令：`测试设计评审通过`。
+2. 执行 `/qa-start docs/requirements/user-management.md /Users/zhuyuanye/Documents/Code/RuoYi-Vue demo-live`。
+3. 不展示 `presenter/product-clarifications.md`；讲师根据它扮演产品口头回复，并要求更新候选稿但不推进。
+4. 执行 `/qa-approve demo-live "需求分析和产品澄清已评审"`。
+5. 执行 `/qa-next demo-live` 生成候选 AC，现场提出至少一条评审意见后用 `/qa-approve` 批准。
+6. 再执行 `/qa-next demo-live` 生成测试设计，检查 AC—TC—执行层追踪和清理策略后用 `/qa-approve` 批准。
 
 ### 阶段 B：实现取证
 
-1. 输入 Prompt 04，首次允许 Agent 读取 RuoYi-Vue 源码。
+1. 执行 `/qa-next demo-live`，状态机首次允许读取 RuoYi-Vue 源码。
 2. 要求 Agent 展开实际文件，不接受只报文件名。
 3. 现场人工核对：
    - Java 用户名长度约束；
    - 用户详情查询是否过滤逻辑删除；
    - Vue 密码/手机号规则中的任一项。
-4. 输入：`实现分析评审通过`，允许写入本轮结果。
+4. 执行 `/qa-approve demo-live "实现证据和需求差异已抽查评审"`。
 
 ### 阶段 C：现场生成 API 自动化
 
-1. 输入 Prompt 05。
-2. Agent 只能先输出计划；确认 TC/AC、文件和清理方式后输入：`API 计划确认`。
-3. 观察其在 `demo-live/automation/api/` 创建代码。
+1. 执行 `/qa-next demo-live`，Agent 只能输出 API 计划并停在 `plan_ready`。
+2. 确认 TC/AC、文件、断言、数据、清理和证据后，用 `/qa-approve` 批准计划。
+3. 再执行 `/qa-next demo-live`，观察其在 `demo-live/automation/api/` 创建代码并执行。
 4. 由讲师在终端执行 Agent 给出的命令，而不是让 Agent只复述结果。典型命令：
 
 ```bash
@@ -137,10 +170,11 @@ find demo-live/automation/api/target/surefire-reports -type f -maxdepth 1 -print
 ```
 
 6. 如果 21 位用户名测试失败，先对照 AC 和真实响应，禁止直接修改断言。
+7. 检查执行证据后用 `/qa-approve` 批准 API 结果，状态机才进入 UI 阶段。
 
 ### 阶段 D：现场生成 UI 自动化及证据
 
-1. 输入 Prompt 06；看完计划后输入：`UI 计划确认`。
+1. 执行 `/qa-next demo-live` 生成 UI 计划，用 `/qa-approve` 批准后再次 `/qa-next` 才编码执行。
 2. 首次无头验证后，现场有头慢动作执行：
 
 ```bash
@@ -160,7 +194,7 @@ find demo-live/automation/ui/target -type f \
 ```
 
 5. 打开两张本轮截图；使用 Trace Viewer 查看新增 POST 和删除 DELETE。
-6. 核对 UI 自动报告中的文件大小与 SHA-256。
+6. 核对 UI 自动报告中的文件大小与 SHA-256，再用 `/qa-approve` 批准 UI 结果。
 
 ### 阶段 E：证明不是静态编造
 
@@ -184,14 +218,14 @@ printf '%s\n' "$challenge_status" | tee demo-live/logs/ui-negative-challenge.exi
 
 ### 阶段 F：结论
 
-1. 输入 Prompt 07，让 Agent从 XML、Trace、截图和日志重新统计，不能照抄先前摘要。
-2. 人工确认缺陷分类后输入：`执行结论确认`。
-3. 输入 Prompt 08 做只读审查。
+1. 执行 `/qa-evidence demo-live`，从 XML、Trace、截图和日志重新统计，不能照抄先前摘要。
+2. 执行 `/qa-next demo-live` 生成诊断候选；人工确认分类后用 `/qa-approve` 批准。
+3. 执行 `/qa-review demo-live` 做最终只读审查。
 4. 最后明确：哪些动态通过、哪些失败、哪些只做了静态分析、哪些尚未覆盖。
 
-## 5. 兜底策略（只在失败时启用）
+## 6. 兜底策略（只在失败时启用）
 
-### 5.1 启用规则
+### 6.1 启用规则
 
 只有以下情况才切换对应阶段兜底：
 
@@ -206,7 +240,7 @@ printf '%s\n' "$challenge_status" | tee demo-live/logs/ui-negative-challenge.exi
 
 不要整体切换，也不要把兜底结果冒充现场生成。
 
-### 5.2 可审计的兜底命令
+### 6.2 可审计的兜底命令
 
 ```bash
 ./scripts/use-demo-fallback.sh ac
@@ -225,7 +259,7 @@ demo-live/FALLBACK_USED.md
 
 复制自动化兜底时会排除 `.env` 和 `target/`，因此仍必须在现场重新执行，不会携带历史测试结果。
 
-## 6. 现场检查清单
+## 7. 现场检查清单
 
 ### 开场前
 

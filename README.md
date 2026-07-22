@@ -18,7 +18,10 @@
 - `docs/requirements/`：提供给 OpenCode 的原始需求
 - `presenter/live-demo-outline.html`：培训开场使用的单页完整流程大纲
 - `presenter/`：其他讲师材料，不在第一阶段提供给 OpenCode
-- `prompts/`：现场依次执行的 OpenCode 提示词（需求→证据→结论）
+- `.opencode/skills/evidence-driven-testing/`：可复用的需求到证据测试流程 Skill
+- `.opencode/commands/`：`/qa-start`、`/qa-next`、`/qa-approve` 等标准命令
+- `docs/opencode-testing-workflow.md`：Skill/Commands 使用说明
+- `prompts/`：逐阶段完整提示词，供培训讲解和命令异常时参考
 - `runbook/30-minute-demo.md`：30 分钟现场操作 Runbook
 - `runbook/30-minute-demo-script.md`：可直接照读的培训现场逐字稿
 - `demo-live/`：现场实时生成工作区；除说明文件外不提交 Git
