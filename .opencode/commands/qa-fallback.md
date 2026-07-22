@@ -1,18 +1,19 @@
 ---
-description: Declare and apply a stage-scoped testing workflow fallback with audit trail
+description: 申请并执行带审计记录的单阶段测试流程兜底
 ---
-Load the `evidence-driven-testing` skill and read its fallback policy.
+加载 `test-workflow-core` 并阅读兜底规范。
 
-Arguments:
-- blocked stage: `$1`
-- fallback source path: `$2`
-- workflow workspace: `$3`
+参数：
+- 受阻阶段：`$1`
+- 兜底来源：`$2`
+- 工作区：`$3`
 
-Do not copy anything immediately. First report:
-- why the current stage is blocked
-- what files would be copied
-- which secret/history patterns will be excluded
-- what must be re-executed
-- how the final report will label fallback-derived content
+不得立即复制。先报告：
 
-Wait for explicit human confirmation. After confirmation, copy only the approved stage material, excluding credentials and historical execution artifacts, and append the required entry to `<workspace>/FALLBACK_USED.md`. Never remove or rewrite earlier entries. Do not claim copied test results as current; re-execution remains mandatory.
+- 当前阶段为什么受阻
+- 准备复制哪些文件
+- 将排除哪些凭据和历史执行产物
+- 哪些测试必须在当前环境重新执行
+- 最终报告如何标记兜底来源
+
+等待人工再次明确确认。确认后只复制获批阶段材料，排除 `.env`、凭据、构建目录、历史日志、XML、Trace、截图和报告，并向 `<workspace>/FALLBACK_USED.md` 追加记录。不得覆盖旧记录，不得把复制来的历史结果声明为本次结果。

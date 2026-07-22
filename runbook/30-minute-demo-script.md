@@ -100,7 +100,7 @@ docs/requirements/user-management.md
 /qa-start docs/requirements/user-management.md /Users/zhuyuanye/Documents/Code/RuoYi-Vue demo-live
 ```
 
-该命令会自动加载 `evidence-driven-testing` Skill；`prompts/01-requirement-analysis.md` 仅作为讲师查看的完整提示词参考。
+该命令会先加载公共 `test-workflow-core` Skill，再加载第一步 `test-requirement-analysis` 中文 Skill；`prompts/01-requirement-analysis.md` 仅作为讲师查看的完整提示词参考。
 
 等待 Agent 输出明确规则、歧义、风险和待确认问题。
 

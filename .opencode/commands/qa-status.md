@@ -1,19 +1,20 @@
 ---
-description: Show workflow stage, approvals, evidence, coverage, and blockers
+description: 只读查看测试流程阶段、门禁、覆盖、证据和阻塞
 ---
-Load the `evidence-driven-testing` skill.
+加载 `test-workflow-core`。
 
-Workspace: `$1`
+工作区：`$1`
 
-Read the workflow context/state and report without modifying files:
+只读检查，不修改文件。报告：
 
-1. Current stage and stage status
-2. Approved artifacts and approval timestamps
-3. Candidate or plan awaiting review
-4. Requirement→AC→TC→automation→result traceability available so far
-5. Raw logs/evidence present, with missing required evidence
-6. Blockers and unresolved risks
-7. Fallback entries and affected stages
-8. Next allowed command
+1. 当前阶段和阶段状态
+2. 当前阶段对应 Skill
+3. 已批准产物和批准时间
+4. 等待评审的候选稿、计划或结果
+5. 当前已有的需求→AC→TC→自动化→结果追踪
+6. 原始日志、退出码、XML/JSON、Trace、截图及证据缺口
+7. 阻塞和未解决风险
+8. 兜底记录及受影响阶段
+9. 下一条允许执行的命令
 
-Do not infer a pass from Markdown summaries. Do not expose secrets or dump trace contents.
+不得根据 Markdown 摘要推断通过，不得输出敏感值或展开 Trace 内容。

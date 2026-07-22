@@ -1,19 +1,19 @@
 ---
-description: Independently audit raw test evidence and detect unsupported claims
+description: 独立核验原始测试证据并发现报告中的无依据声明
 ---
-Load the `evidence-driven-testing` skill and read its evidence contract.
+加载 `test-workflow-core` 和 `test-evidence-diagnosis`，并阅读公共证据规范。
 
-Workspace: `$1`
+工作区：`$1`
 
-Perform a read-only evidence audit:
+执行只读证据审计：
 
-1. Locate exact commands, complete logs, original exit-code files, runner XML/JSON, traces, screenshots, and cleanup records.
-2. Recompute test totals from machine-readable artifacts.
-3. Calculate relative path, byte size, and SHA-256 for evidence files.
-4. Compare report claims with raw evidence and list every mismatch.
-5. Distinguish passed, failed, blocked, skipped, and unverified.
-6. Check whether artifacts appear current for the recorded source commit and environment.
-7. Check for likely secret exposure without printing sensitive values.
-8. Report whether a controlled negative challenge exists and whether it produced fresh failure evidence.
+1. 查找实际命令、完整日志、原始退出码、XML/JSON、Trace、截图和清理记录。
+2. 从机器可读结果重新统计通过、失败、错误、跳过。
+3. 计算证据相对路径、字节大小和 SHA-256。
+4. 对比报告声明与原始证据，列出每个不一致。
+5. 区分 passed、failed、blocked、skipped、unverified。
+6. 检查证据是否对应当前源码版本、环境和执行时间。
+7. 检查潜在敏感信息泄露，但不打印敏感值。
+8. 检查是否存在受控负向挑战及其新鲜失败证据。
 
-Do not modify test code, assertions, raw evidence, or approved reports. Write an audit candidate only if the user requests a file; otherwise report in the conversation.
+不得修改测试代码、断言、原始证据或已批准报告。用户未要求写文件时，只在对话中报告。

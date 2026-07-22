@@ -1,18 +1,27 @@
 ---
-description: Execute the next allowed step in the gated testing workflow
+description: 按状态机执行标准测试流程当前唯一允许的下一步
 ---
-Load the `evidence-driven-testing` skill and follow it strictly.
+先加载 `test-workflow-core`。
 
-Workspace: `$1`
+工作区：`$1`
 
-If the workspace argument is empty, ask for it. Read `workflow-context.md` and `workflow-state.md`. Refuse to skip an unapproved gate.
+工作区为空时先询问。读取 `workflow-context.md` 和 `workflow-state.md`，根据 `current_stage` 加载且只加载对应阶段 Skill：
 
-Execute exactly one allowed transition for the current stage:
+- `requirements` → `test-requirement-analysis`
+- `acceptance` → `test-acceptance-criteria`
+- `test-design` → `test-case-design`
+- `implementation-analysis` → `test-implementation-analysis`
+- `api-automation` → `test-api-automation`
+- `ui-automation` → `test-ui-automation`
+- `evidence-diagnosis` → `test-evidence-diagnosis`
+- `final-review` → `test-final-review`
 
-- For a non-automation stage at `not_started`, produce its candidate draft and stop at `draft_ready`.
-- For API/UI automation at `not_started`, produce only the implementation/execution plan and stop at `plan_ready`.
-- For API/UI automation at `approved_for_execution`, implement and run the approved scope, preserve raw evidence, produce a result candidate, and stop at `result_ready`.
-- If the current stage is `blocked`, report only the blocker and available recovery/fallback choices.
-- If a draft, plan, or result is already waiting for approval, do not redo or advance it.
+严格执行一次状态转换：
 
-At the end, report: current stage, files changed, evidence created, unresolved risks, and the exact human gate required next. Never self-approve.
+- 普通阶段为 `not_started`：生成候选稿，停在 `draft_ready`。
+- API/UI 为 `not_started`：只生成计划，停在 `plan_ready`。
+- API/UI 为 `approved_for_execution`：按批准计划编码并真实执行，保存原始证据，停在 `result_ready`。
+- 当前为 `blocked`：只报告阻塞和可选恢复/兜底方案。
+- 已有候选稿、计划或结果等待批准：不得重复执行或越过门禁。
+
+结束时报告当前阶段、修改文件、生成证据、未决风险和下一道人工作业门禁。不得自行批准。

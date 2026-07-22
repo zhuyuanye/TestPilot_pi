@@ -1,25 +1,26 @@
 ---
-description: Record a human gate decision and advance the testing workflow safely
+description: 记录人工评审决定并安全推进标准测试流程
 ---
-Load the `evidence-driven-testing` skill and follow it strictly.
+加载 `test-workflow-core`，再根据当前阶段加载对应中文阶段 Skill。
 
-Workspace: `$1`
-Human review note: `$2`
+参数：
+- 工作区：`$1`
+- 人工评审说明：`$2`
 
-This command represents a human gate decision, not agent self-approval. If the workspace is missing, ask for it. If the review note is empty, ask the user to state what was reviewed and approved.
+工作区或评审说明为空时先询问。该命令代表人工门禁，不是 Agent 自我批准。
 
-Read the current state and candidate/plan/result. Before approval, summarize:
-- current stage and gate type
-- artifact or plan being approved
-- unresolved blockers and risks
-- whether any fallback was used
+批准前先摘要：
+- 当前阶段和门禁类型
+- 被批准的候选稿、计划或结果
+- 未解决阻塞和风险
+- 是否使用兜底
 
-Refuse approval if blocking requirement questions remain, required evidence is missing, secrets are exposed, or the requested transition violates the skill state machine.
+存在阻塞需求问题、缺少必要执行证据、泄露敏感信息或违反状态机时，必须拒绝批准并说明原因。
 
-If valid:
-1. Record the human note, timestamp, and current stage in `workflow-state.md` or an append-only approval log.
-2. For a draft/result gate, promote the approved artifact from `drafts/` to `outputs/`, mark the stage approved, and advance to the next stage as `not_started`.
-3. For an API/UI plan gate, keep the current stage and change status from `plan_ready` to `approved_for_execution`.
-4. Do not execute the next stage in this command.
+批准有效时：
+1. 向 `approval-log.md` 追加阶段、评审说明和时间。
+2. 文档候选/结果门禁：将已批准产物从 `drafts/` 提升到 `outputs/`，标记当前阶段 `approved`，下一阶段设为 `not_started`。
+3. API/UI 计划门禁：不切换阶段，只将 `plan_ready` 改为 `approved_for_execution`。
+4. 本命令不得同时执行下一阶段。
 
-Report the next allowed command, normally `/qa-next $1`.
+最后提示下一条允许命令，通常是 `/qa-next $1`。

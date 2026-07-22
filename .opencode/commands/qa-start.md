@@ -1,19 +1,19 @@
 ---
-description: Start a gated evidence-driven testing workflow from raw requirements
+description: 从原始需求启动带人工门禁的标准测试流程
 ---
-Load the `evidence-driven-testing` skill and follow it strictly.
+先加载 `test-workflow-core` 和 `test-requirement-analysis` 两个 Skill，并严格执行。
 
-Arguments:
-- requirement input: `$1`
-- target source path: `$2`
-- isolated workspace: `$3`
+参数：
+- 原始需求：`$1`
+- 目标源码路径：`$2`
+- 隔离工作区：`$3`
 
-If any argument is empty or ambiguous, ask for it and do nothing else.
+任何参数为空或含义不清时，只提问，不执行后续操作。
 
-Safety checks:
-1. Confirm the requirement input exists or was supplied as text.
-2. Confirm the workspace is not the product source directory and is not a historical/fallback output directory.
-3. If the workspace contains files, list them and ask before deleting or reusing anything.
-4. Do not read product implementation, existing AC/TC, automation, reports, or fallback materials during this command.
+安全检查：
+1. 确认需求文件存在或需求文本已提供。
+2. 确认工作区不是产品源码目录，也不是历史结果或兜底目录。
+3. 工作区非空时先列出内容，未经同意不得删除或复用。
+4. 本命令禁止读取产品实现、已有 AC/TC、自动化、报告和兜底材料。
 
-Initialize the workspace contract and workflow state. Record source path but do not inspect it yet. Then execute only the `requirements` stage: analyze the raw requirement, write the candidate to `drafts/01-requirement-analysis.md`, mark the state `draft_ready` or `blocked`, and stop for human/product clarification and review. Do not self-approve or advance to acceptance criteria.
+初始化标准工作区、`workflow-context.md` 和 `workflow-state.md`。记录源码路径但暂不读取源码。然后只执行需求分析阶段：生成 `drafts/01-requirement-analysis.md`，将状态设为 `draft_ready` 或 `blocked`，停下来等待产品澄清和人工评审。不得自行批准或生成 AC。

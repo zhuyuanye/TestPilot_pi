@@ -1,96 +1,109 @@
-# OpenCode 标准化测试流程：Skill 与 Commands
+# OpenCode 中文标准化测试流程：Skills 与 Commands
 
-## 组成
+## 设计方式
 
-### Skill
+整个流程不再由一个大 Skill 承担。公共状态机与每个业务阶段相互分离：
+
+- `test-workflow-core` 负责公共规则、工作区、状态机、人工门禁、证据和兜底。
+- 八个步骤各自对应一个独立中文 Skill。
+- `/qa-next` 读取当前状态后，只加载当前阶段 Skill。
+
+OpenCode 的 Skill 名称受规范限制，只能使用小写英文字母、数字和连字符；Skill 的描述、正文、规则和输出要求均为中文。
+
+## Skills
+
+| 步骤 | Skill | 中文职责 |
+|---:|---|---|
+| 公共 | `test-workflow-core` | 状态机、目录、人工门禁、证据规范、兜底规范 |
+| 1 | `test-requirement-analysis` | 原始需求分析、歧义、假设、风险和产品澄清 |
+| 2 | `test-acceptance-criteria` | Given-When-Then AC、自检和需求—AC追踪 |
+| 3 | `test-case-design` | TC、优先级、测试方法、分层、数据和清理 |
+| 4 | `test-implementation-analysis` | 需求与源码实现对照、文件和符号证据 |
+| 5 | `test-api-automation` | API 计划门禁、编码执行、业务断言和原始证据 |
+| 6 | `test-ui-automation` | UI 计划门禁、核心流程、Trace、截图和清理 |
+| 7 | `test-evidence-diagnosis` | 重算测试结果、证据哈希、失败分类和缺陷 |
+| 8 | `test-final-review` | 双向追踪、风险、结论建议和人工签字边界 |
+
+文件位置：
 
 ```text
-.opencode/skills/evidence-driven-testing/SKILL.md
+.opencode/skills/
+├── test-workflow-core/
+├── test-requirement-analysis/
+├── test-acceptance-criteria/
+├── test-case-design/
+├── test-implementation-analysis/
+├── test-api-automation/
+├── test-ui-automation/
+├── test-evidence-diagnosis/
+└── test-final-review/
 ```
 
-该 Skill 定义通用的需求到证据测试闭环，包括：
-
-- 阶段状态机
-- 人工评审门禁
-- API/UI 双重门禁
-- 工作区隔离
-- 原始执行证据契约
-- 失败分类规则
-- 兜底使用与审计规则
-- 最终双向追踪和人工签字边界
-
-OpenCode 可以根据任务自动加载，也可以由 Commands 明确要求加载。
-
-### Commands
+## Commands
 
 | 命令 | 作用 |
 |---|---|
-| `/qa-start <需求> <源码> <工作区>` | 初始化工作区，只执行原始需求分析并停在人工门禁 |
-| `/qa-next <工作区>` | 根据状态机执行当前阶段唯一允许的下一步 |
+| `/qa-start <需求> <源码> <工作区>` | 加载公共 Skill 和第一步 Skill，初始化并生成需求分析候选稿 |
+| `/qa-next <工作区>` | 按状态映射表加载当前阶段 Skill，只执行一次合法转换 |
 | `/qa-approve <工作区> <评审说明>` | 记录人工批准；不会同时执行下一阶段 |
-| `/qa-status <工作区>` | 只读查看阶段、门禁、覆盖、证据、阻塞和兜底状态 |
-| `/qa-evidence <工作区>` | 独立核验日志、退出码、XML、Trace、截图和报告声明 |
-| `/qa-fallback <阶段> <来源> <工作区>` | 先提出阶段级兜底方案，人工再次确认后才复制并留痕 |
-| `/qa-review <工作区>` | 最终只读审查并生成待人工签字的建议 |
+| `/qa-status <工作区>` | 查看阶段、当前 Skill、门禁、覆盖、证据和阻塞 |
+| `/qa-evidence <工作区>` | 加载证据诊断 Skill，独立核验原始结果 |
+| `/qa-fallback <阶段> <来源> <工作区>` | 按公共兜底规范提出方案，二次确认后复制并留痕 |
+| `/qa-review <工作区>` | 加载最终评审 Skill，执行只读收口 |
 
 ## 本项目启动示例
-
-在项目根目录启动 OpenCode，然后执行：
 
 ```text
 /qa-start docs/requirements/user-management.md /Users/zhuyuanye/Documents/Code/RuoYi-Vue demo-live
 ```
 
-该命令只能读取原始需求，会：
+该命令只允许加载：
 
-1. 创建工作区结构；
-2. 写入 `workflow-context.md` 和 `workflow-state.md`；
-3. 生成需求分析候选稿；
-4. 停止在产品澄清和人工评审门禁。
+- `test-workflow-core`
+- `test-requirement-analysis`
+- 原始需求
 
-产品在对话中完成澄清后：
+产品澄清并更新候选稿后：
 
 ```text
 /qa-approve demo-live "需求规则、待确认项和产品澄清已评审，无阻塞项"
 ```
 
-进入下一阶段：
+生成 AC：
 
 ```text
 /qa-next demo-live
 ```
 
-审查候选 AC 后：
+此时 `/qa-next` 会根据 `current_stage: acceptance` 加载 `test-acceptance-criteria`，不会加载后续实现或自动化 Skill。
+
+人工评审后：
 
 ```text
 /qa-approve demo-live "AC 来源、边界、权限和数据一致性已评审"
 ```
 
-后续继续交替使用：
+后续继续交替：
 
 ```text
 /qa-next demo-live
-/qa-approve demo-live "本阶段的人工评审说明"
+/qa-approve demo-live "本阶段人工评审说明"
 ```
 
-## API/UI 双门禁示例
+## API/UI 双门禁
 
-进入 API 或 UI 自动化阶段后，第一次 `/qa-next` 只能输出计划：
+API 和 UI Skill 都要求两次人工批准。
+
+第一次 `/qa-next`：
 
 ```text
 not_started → plan_ready
 ```
 
-人工批准计划：
+批准计划：
 
 ```text
-/qa-approve demo-live "自动化范围、断言、数据、清理和证据计划已确认"
-```
-
-此时状态为：
-
-```text
-approved_for_execution
+/qa-approve demo-live "范围、断言、数据、清理和证据计划已确认"
 ```
 
 再次执行：
@@ -99,97 +112,55 @@ approved_for_execution
 /qa-next demo-live
 ```
 
-OpenCode 才能创建代码并真实执行，完成后停在：
+此时才允许编码和真实执行：
 
 ```text
-result_ready
+approved_for_execution → result_ready
 ```
 
-人工检查原始证据后再次批准，流程才进入下一阶段。
+人工检查原始日志、退出码、XML、Trace/截图和清理结果后，再次 `/qa-approve` 才进入下一阶段。
 
-## 随时查看状态
+## 状态与证据
+
+随时查看：
 
 ```text
 /qa-status demo-live
 ```
 
-重点显示：
-
-- 当前阶段和状态
-- 等待评审的候选稿/计划/结果
-- 已批准产物与时间
-- 当前追踪关系
-- 原始证据缺口
-- 阻塞和未覆盖风险
-- 是否使用过兜底
-- 下一条允许执行的命令
-
-## 独立核验证据
+独立核验：
 
 ```text
 /qa-evidence demo-live
 ```
 
-该命令不会修改测试或报告，而是重新：
+证据核验 Skill 会重新读取机器结果、退出码和证据文件，不以 Markdown 摘要作为执行事实。
 
-- 从机器可读结果统计通过/失败；
-- 检查完整日志和原始退出码；
-- 计算 Trace、截图等证据的大小和 SHA-256；
-- 对比 Markdown 声明与原始证据；
-- 标记 `passed / failed / blocked / skipped / unverified`；
-- 检查受控负向挑战是否真的使测试变红。
-
-## 使用兜底
-
-例如 API 阶段受阻：
+## 兜底
 
 ```text
 /qa-fallback api-automation automation/api demo-live
 ```
 
-第一次执行只展示：
-
-- 阻塞原因
-- 将复制的文件
-- 排除的凭据和历史证据
-- 必须重新执行的内容
-- 最终报告如何标记兜底
-
-只有人工再次明确确认后才允许复制，并写入：
+第一次只展示阻塞原因、复制范围、排除项和重跑要求。人工再次确认后才复制，并追加：
 
 ```text
 demo-live/FALLBACK_USED.md
 ```
 
-## 最终审查
+## 最终评审
 
 ```text
 /qa-review demo-live
 ```
 
-最终结果必须区分：
+最终 Skill 只读审查，区分动态、静态、未覆盖、阻塞、跳过、兜底和未证实，不代替团队签字。
 
-- 动态验证通过/失败
-- 仅静态分析
-- 未覆盖
-- 环境阻塞
-- 使用兜底
-- 原始证据不足、未证实
+## OpenCode 发现验证
 
-OpenCode 只能给出建议，产品、开发、测试签字必须由人完成。
-
-## 重新加载
-
-项目新增或修改 Skill/Commands 后，重新启动 OpenCode。若当前版本支持资源热加载，也建议在正式演示前退出并重新进入，避免沿用旧命令缓存。
-
-验证 Skill 是否被发现：
+修改 Skill/Commands 后重新启动 OpenCode。演示前执行：
 
 ```bash
-opencode debug skill | grep -A3 evidence-driven-testing
-```
-
-验证 Commands 是否进入解析后的配置：
-
-```bash
+opencode debug skill | grep -E 'test-workflow-core|test-requirement-analysis|test-final-review'
 opencode debug config | grep -E 'qa-start|qa-next|qa-approve|qa-evidence'
 ```

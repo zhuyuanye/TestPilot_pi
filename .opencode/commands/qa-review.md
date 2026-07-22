@@ -1,18 +1,18 @@
 ---
-description: Perform final read-only testing workflow review and prepare human sign-off
+description: 执行最终只读测试评审并准备人工签字
 ---
-Load the `evidence-driven-testing` skill and follow its final-review rules.
+加载 `test-workflow-core` 和 `test-final-review`。
 
-Workspace: `$1`
+工作区：`$1`
 
-Perform a read-only final review:
+执行最终只读评审：
 
-1. Verify bidirectional Requirement↔Clarification↔AC↔TC↔Method↔Raw result↔Defect traceability.
-2. Separate dynamically verified, statically inferred, unverified, blocked, skipped, and fallback-derived claims.
-3. Check that failures were not hidden by weakened assertions.
-4. Check evidence integrity, cleanup status, residual test data, and secret exposure.
-5. List uncovered AC and operational risks.
-6. Recommend `通过`, `有条件通过`, or `不通过` with evidence-based reasons.
-7. Produce empty product, development, and test sign-off fields.
+1. 验证需求↔澄清↔AC↔TC↔方法↔原始结果↔缺陷双向追踪。
+2. 区分动态通过、动态失败、仅静态分析、未证实、阻塞、跳过和兜底来源。
+3. 检查是否通过弱化断言隐藏失败。
+4. 检查证据完整性、数据清理、残留和敏感信息风险。
+5. 列出未覆盖 AC 和剩余风险。
+6. 根据证据建议“通过 / 有条件通过 / 不通过”。
+7. 保留产品、开发、测试空白签字栏。
 
-The recommendation is advisory. Do not sign, self-approve, modify product code, or change prior evidence.
+建议仅供人工决策。不得自行签字、批准验收、修改业务代码或改变原始证据。

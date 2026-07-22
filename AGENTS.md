@@ -2,7 +2,18 @@
 
 ## Standard testing workflow
 
-For requests that cover requirements analysis, acceptance criteria, test design, implementation comparison, API/UI automation, execution diagnosis, evidence auditing, or final test conclusions, load and follow the `evidence-driven-testing` skill.
+For any standardized testing workflow, first load `test-workflow-core`, then load exactly the stage skill matching the current workflow state:
+
+- requirements: `test-requirement-analysis`
+- acceptance: `test-acceptance-criteria`
+- test design: `test-case-design`
+- implementation analysis: `test-implementation-analysis`
+- API automation: `test-api-automation`
+- UI automation: `test-ui-automation`
+- evidence diagnosis: `test-evidence-diagnosis`
+- final review: `test-final-review`
+
+All project testing skills use Chinese instructions and outputs unless the user explicitly requests another language.
 
 Use the project commands under `.opencode/commands/` for the standard gated flow:
 

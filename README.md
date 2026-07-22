@@ -18,7 +18,7 @@
 - `docs/requirements/`：提供给 OpenCode 的原始需求
 - `presenter/live-demo-outline.html`：培训开场使用的单页完整流程大纲
 - `presenter/`：其他讲师材料，不在第一阶段提供给 OpenCode
-- `.opencode/skills/evidence-driven-testing/`：可复用的需求到证据测试流程 Skill
+- `.opencode/skills/`：公共流程 Skill + 八个独立步骤的中文测试 Skills
 - `.opencode/commands/`：`/qa-start`、`/qa-next`、`/qa-approve` 等标准命令
 - `docs/opencode-testing-workflow.md`：Skill/Commands 使用说明
 - `prompts/`：逐阶段完整提示词，供培训讲解和命令异常时参考
