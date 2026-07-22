@@ -1,5 +1,7 @@
 # RuoYi UI 自动化
 
+> 演示说明：这是提前验证过的兜底工程。正常现场流程由 Prompt 06 在 `demo-live/automation/ui/` 从零生成；只有明确启用 UI 兜底后才复制本工程，并且必须现场重新生成 Trace 与截图。
+
 使用 Java 17、JUnit 5、Playwright Java 和 Chromium 验证 Vue 用户管理核心流程。
 
 ## 覆盖场景

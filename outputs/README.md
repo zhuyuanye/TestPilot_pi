@@ -1,6 +1,10 @@
-# OpenCode 输出目录
+# 兜底输出目录
 
-按演示步骤生成：
+该目录保存提前验证过的参考结果，只用于以下情况：模型超时、网络异常、生成代码无法及时修复或演示环境故障。
+
+正常现场演示不得让 Agent 读取本目录；本轮实时产物应写入 `demo-live/outputs/`。
+
+兜底内容：
 
 1. `user-management-acceptance-criteria.md`
 2. `user-management-test-cases.md`
@@ -10,4 +14,10 @@
 6. `review-signoff.md`
 7. `ui-test-execution-report.md`
 
-前四项由演示过程中的 OpenCode 生成并经过人工评审；缺陷清单由真实执行结果产生，确认单由团队人工签署。UI 报告由 `run-ui-tests.sh` 在每次执行后自动导出。
+使用兜底时不要手工无痕复制，应执行：
+
+```bash
+./scripts/use-demo-fallback.sh <phase>
+```
+
+脚本会把使用时间、阶段和来源 commit 写入 `demo-live/FALLBACK_USED.md`。自动化兜底仍需现场重新执行，历史 `target/`、Trace、截图和 `.env` 不会被复制。

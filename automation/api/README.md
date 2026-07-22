@@ -1,5 +1,7 @@
 # RuoYi API 自动化
 
+> 演示说明：这是提前验证过的兜底工程。正常现场流程由 Prompt 05 在 `demo-live/automation/api/` 从零生成；只有明确启用 API 兜底后才复制本工程，并且必须现场重新执行。
+
 当前目录是独立于 RuoYi-Vue 业务源码的 Java 17、JUnit 5、RestAssured 和 Maven 黑盒 API 测试模块。
 
 ## 前置条件

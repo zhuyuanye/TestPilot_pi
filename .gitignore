@@ -17,6 +17,10 @@
 !.env.example
 **/application-local.yml
 
+# Live demo runtime workspace
+demo-live/*
+!demo-live/README.md
+
 # Test reports
 **/allure-results/
 **/allure-report/

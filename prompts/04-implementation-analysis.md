@@ -1,30 +1,32 @@
-# Prompt 04：需求、AC 与实现对照
-
-目标源码路径已经确定。
+# Prompt 04：现场对照需求与真实实现
 
 ```text
-请分析 /Users/zhuyuanye/Documents/Code/RuoYi-Vue 下的 RuoYi-Vue 项目，并对照：
+现在允许读取 /Users/zhuyuanye/Documents/Code/RuoYi-Vue，但仍禁止读取仓库现有 outputs/、automation/ 和 presenter/checkpoints/。
+
+请对照：
 - docs/requirements/user-management.md
-- outputs/user-management-acceptance-criteria.md
-- outputs/user-management-test-cases.md
+- demo-live/outputs/user-management-acceptance-criteria.md
+- demo-live/outputs/user-management-test-cases.md
 
-请定位并分析：
-1. Vue 用户管理页面、表单校验和 API 请求封装
-2. Java Controller、Service、领域对象及参数校验
-3. 登录、用户新增、查询、详情和删除接口
-4. Token 获取及传递方式
-5. 用户名唯一性和大小写处理方式
-6. 手机号、密码、用户名长度校验
-7. 禁止删除当前登录用户的实现
-8. 测试数据准备和清理所需能力
-9. 项目现有测试框架和可复用工具
+定位并分析：
+1. Vue 用户管理页面、表单规则和 API 封装
+2. Java Controller、Service、领域对象和参数校验
+3. 登录、用户新增、列表、详情和删除接口
+4. Token 获取与传递方式
+5. 用户名唯一性及大小写处理
+6. 用户名、密码、手机号校验
+7. 当前登录用户自删除保护
+8. 测试数据查询与清理能力
 
-输出以下三类结论：
-- 需求或 AC 明确规定
-- 当前代码实际实现
-- 差异、风险或待确认项
+每项必须分成三列：
+- AC 要求
+- 实现证据（文件路径 + 类/方法 + 关键逻辑）
+- 差异、风险或待动态验证项
 
-每个实现结论必须给出文件路径和关键类/方法，不要凭经验猜测。
-本阶段不修改业务代码，不生成测试代码。
-将结果写入 outputs/implementation-gap-analysis.md。
+不要仅凭静态代码直接宣告测试通过，也不要修改业务源码或生成测试代码。
+先在对话中展示关键证据和拟写结论，等待我抽查至少两个文件。只有我回复“实现分析评审通过”后，才写入 demo-live/outputs/implementation-gap-analysis.md。
 ```
+
+## 人工控制点
+
+现场打开 Agent 引用的 2～3 个源码位置核对，尤其检查用户名长度和逻辑删除详情查询，证明结论来自真实源码而非套话。

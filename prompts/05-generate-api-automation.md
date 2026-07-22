@@ -1,28 +1,42 @@
-# Prompt 05：生成并执行 API 自动化
+# Prompt 05：现场生成并执行 API 自动化
 
 ```text
-请基于已确认的 AC、测试用例和实现分析，为 RuoYi-Vue 创建 Java API 自动化测试。
+请基于本轮现场产物：
+- demo-live/outputs/user-management-acceptance-criteria.md
+- demo-live/outputs/user-management-test-cases.md
+- demo-live/outputs/implementation-gap-analysis.md
 
-先输出实施计划和拟修改文件，等待我确认后再编码。
+在 demo-live/automation/api/ 中从零创建独立的 Java 17 + JUnit 5 + RestAssured + Maven API 测试工程。
+禁止读取或复制仓库现有 automation/；它是兜底实现，除非我明确说“启用 API 兜底”。禁止修改 RuoYi-Vue 业务源码。
 
-编码约束：
-1. 使用项目兼容的 Java、JUnit 5、RestAssured 和 Maven
-2. 不修改业务代码，不依赖执行顺序
-3. baseUrl、管理员账号和密码通过环境变量或测试配置传入，不硬编码凭据
-4. 每次执行动态生成唯一用户名和手机号
-5. 测试结束后清理本次创建的数据；失败时也尽量清理
-6. 断言 HTTP 层、业务状态和关键响应字段，不能只断言 HTTP 200
-7. 每个测试关联 TC 与 AC 编号
-8. 日志中不得输出明文密码或完整 Token
-9. 优先实现 P0 纵向闭环：登录→新增→查询→重复新增→删除→确认不存在
-10. 实现后运行测试，根据真实错误诊断；不要为了通过而降低断言
+第一步只输出最小实施计划、拟创建文件、P0 覆盖 TC/AC 和清理策略，然后停止。等我回复“API 计划确认”后再编码。
 
-执行结束后输出：
-- 修改文件列表
-- 执行命令
-- 通过与失败结果
-- 需求/AC/用例覆盖情况
-- 实现差异和未覆盖风险
+编码范围优先保证现场可完成：
+1. 登录并取得 Token
+2. 动态创建有效用户
+3. 列表/详情查询并校验关键字段与默认状态
+4. 重复用户名被拒绝
+5. 删除并验证列表和详情均不可查询
+6. 一个稳定的需求边界案例（优先 21 位用户名）
 
-将测试结论写入 outputs/test-execution-report.md。
+工程约束：
+- URL、管理员账号和密码只能由 `RUOYI_BASE_URL`、`RUOYI_ADMIN_USERNAME`、`RUOYI_ADMIN_PASSWORD` 传入
+- 不依赖测试执行顺序
+- 动态生成用户名、手机号和密码
+- @AfterEach/finally 尽力清理，清理失败必须报告
+- 同时断言 HTTP 状态、业务 code/message 和关键字段
+- 每个测试 DisplayName 或注释关联 TC/AC
+- 不打印密码、完整 Token 或 Authorization Header
+- 不为了绿色结果降低 AC 断言
+
+编码后按顺序执行：
+1. mvn clean test-compile
+2. P0 测试
+3. 边界差异测试
+
+将完整 Maven 输出用 `tee` 保存到 `demo-live/logs/`，并单独保存 Maven 原始退出码；保留 Surefire XML。先在对话中报告真实结果和初步分类（产品缺陷 / 测试缺陷 / 环境问题），不要先写最终结论，等待我确认诊断。
 ```
+
+## 人工控制点
+
+现场先看计划，再允许编码；执行失败时要求 Agent展示响应和 AC，不接受直接改断言。若生成超过 3 分钟，只对 API 阶段启用 `automation/api/` 兜底并明确告诉观众。
