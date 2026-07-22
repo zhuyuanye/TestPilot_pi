@@ -53,7 +53,17 @@ find demo-live -maxdepth 2 -type f -print
 
 此时除 `README.md` 和 `SESSION.md` 外不应存在 AC、用例、代码或报告。
 
-### 2.3 屏幕布局
+### 2.3 现场大纲
+
+直接打开：
+
+```bash
+open presenter/live-demo-outline.html
+```
+
+使用方向键/空格翻页，`F` 进入全屏，`Home`/`End` 跳转首尾。建议用前 4 页开场，按阶段使用对应过渡页，最后一页收口；实际操作时切回 OpenCode、源码、终端和浏览器。
+
+### 2.4 屏幕布局
 
 - 左侧：OpenCode 对话和计划
 - 右上：原始需求/Agent 新生成文件
