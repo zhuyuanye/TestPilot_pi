@@ -6,6 +6,7 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,22 +16,29 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserManagementUiTest {
-    private final String uiUrl = environment("RUOYI_UI_URL", "http://localhost:8081");
+    private static final DateTimeFormatter SCREENSHOT_TIME = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS");
+
+    private final String uiUrl = requiredEnvironment("RUOYI_UI_URL").replaceAll("/+$", "");
     private Playwright playwright;
     private Browser browser;
     private BrowserContext context;
     private Page page;
     private String createdUserName;
+    private boolean testFailed;
 
     @BeforeEach
     void openBrowser() {
         playwright = Playwright.create();
         boolean headless = Boolean.parseBoolean(environment("HEADLESS", "true"));
-        double slowMo = Double.parseDouble(environment("SLOW_MO", "0"));
+        double slowMo = nonNegativeDoubleEnvironment("SLOW_MO", "0");
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                 .setHeadless(headless)
                 .setSlowMo(slowMo));
@@ -43,8 +51,14 @@ class UserManagementUiTest {
     void cleanup() {
         try {
             if (createdUserName != null) {
-                new UserCleanupClient().deleteIfPresent(createdUserName);
+                new UserCleanupClient().deleteAllExact(createdUserName);
             }
+        } catch (RuntimeException | AssertionError cleanupError) {
+            captureFailureScreenshot();
+            if (!testFailed) {
+                throw cleanupError;
+            }
+            System.err.println("[cleanup] UI 测试数据兜底清理失败：" + cleanupError.getMessage());
         } finally {
             if (context != null) {
                 context.close();
@@ -59,25 +73,30 @@ class UserManagementUiTest {
     }
 
     @Test
-    @DisplayName("TC-001：Vue 页面完成用户新增、查询和删除（AC-01/19/20/21/22）")
+    @DisplayName("TC-001 | AC-01/19/20/21/22 | Vue 页面完成用户新增、查询和删除")
     void shouldCreateFindAndDeleteUserFromVuePage() {
         createdUserName = UiTestData.uniqueUserName();
+        String nickName = UiTestData.uniqueNickName();
         String phone = UiTestData.uniquePhone();
+        String password = UiTestData.uniquePassword();
 
         try {
             login();
             openUserManagement();
-            createUser(createdUserName, phone);
+            createUser(createdUserName, nickName, phone, password);
             searchUser(createdUserName);
 
             Locator row = userRow(createdUserName);
             assertThat(row).hasCount(1);
             assertThat(row).containsText(createdUserName);
+            assertThat(row).containsText(nickName);
+            assertThat(row).containsText(phone);
+            assertThat(row.getByRole(AriaRole.SWITCH)).isChecked();
 
             deleteUser(row);
-            assertThat(userRow(createdUserName)).hasCount(0);
-            createdUserName = null;
+            assertThat(userNameLink(createdUserName)).hasCount(0);
         } catch (RuntimeException | AssertionError error) {
+            testFailed = true;
             captureFailureScreenshot();
             throw error;
         }
@@ -87,7 +106,13 @@ class UserManagementUiTest {
         page.navigate(uiUrl + "/login");
         page.getByPlaceholder("账号").fill(requiredEnvironment("RUOYI_ADMIN_USERNAME"));
         page.getByPlaceholder("密码").fill(requiredEnvironment("RUOYI_ADMIN_PASSWORD"));
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("登 录").setExact(true)).click();
+
+        Response response = page.waitForResponse(
+                candidate -> candidate.url().endsWith("/login")
+                        && candidate.request().method().equals("POST"),
+                () -> page.getByRole(AriaRole.BUTTON,
+                        new Page.GetByRoleOptions().setName("登 录").setExact(true)).click());
+        assertEquals(200, response.status(), "登录请求 HTTP 状态应为 200");
         page.waitForURL(url -> !url.contains("/login"));
     }
 
@@ -96,54 +121,82 @@ class UserManagementUiTest {
         assertThat(addButton()).isVisible();
     }
 
-    private void createUser(String userName, String phone) {
+    private void createUser(String userName, String nickName, String phone, String password) {
         addButton().click();
-        Locator dialog = page.locator(".el-dialog:visible");
-        assertThat(dialog).containsText("添加用户");
+        Locator dialog = addUserDialog();
+        assertThat(dialog).isVisible();
 
-        dialog.getByPlaceholder("请输入用户昵称").fill("UI自动化用户");
+        dialog.getByPlaceholder("请输入用户昵称").fill(nickName);
         dialog.getByPlaceholder("请输入手机号码").fill(phone);
         dialog.getByPlaceholder("请输入用户名称").fill(userName);
-        dialog.getByPlaceholder("请输入用户密码").fill("Test12345");
+        dialog.getByPlaceholder("请输入用户密码").fill(password);
 
-        dialog.getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("确 定").setExact(true)).click();
+        Response response = page.waitForResponse(
+                candidate -> candidate.url().contains("/system/user")
+                        && candidate.request().method().equals("POST"),
+                () -> dialog.getByRole(AriaRole.BUTTON,
+                        new Locator.GetByRoleOptions().setName("确 定").setExact(true)).click());
+        assertEquals(200, response.status(), "新增用户请求 HTTP 状态应为 200");
         assertThat(page.getByText("新增成功", new Page.GetByTextOptions().setExact(true))).isVisible();
         assertThat(dialog).isHidden();
     }
 
     private void searchUser(String userName) {
-        Locator queryInput = page.getByPlaceholder("请输入用户名称").first();
-        queryInput.fill(userName);
-        page.waitForResponse(
-                response -> response.url().contains("/system/user/list")
-                        && response.request().method().equals("GET"),
-                () -> page.locator(".el-form button")
-                        .filter(new Locator.FilterOptions().setHasText("搜索")).click());
+        Locator queryForm = page.locator("form.el-form--inline");
+        queryForm.getByPlaceholder("请输入用户名称").fill(userName);
+        Response response = page.waitForResponse(
+                candidate -> candidate.url().contains("/system/user/list")
+                        && candidate.request().method().equals("GET"),
+                () -> queryForm.getByRole(AriaRole.BUTTON,
+                        new Locator.GetByRoleOptions().setName(Pattern.compile("搜索"))).click());
+        assertEquals(200, response.status(), "查询用户请求 HTTP 状态应为 200");
     }
 
     private Locator addButton() {
-        return page.locator("button.el-button")
-                .filter(new Locator.FilterOptions().setHasText("新增")).first();
+        return page.locator(".mb8").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName(Pattern.compile("新增")));
+    }
+
+    private Locator addUserDialog() {
+        return page.getByRole(AriaRole.DIALOG)
+                .filter(new Locator.FilterOptions().setHasText("添加用户"));
+    }
+
+    private Locator userNameLink(String userName) {
+        return page.locator(".el-table__body")
+                .getByText(userName, new Locator.GetByTextOptions().setExact(true));
     }
 
     private Locator userRow(String userName) {
-        return page.locator(".el-table__body tr").filter(new Locator.FilterOptions().setHasText(userName));
+        return userNameLink(userName).locator("xpath=ancestor::tr");
     }
 
     private void deleteUser(Locator row) {
-        row.locator("button").filter(new Locator.FilterOptions().setHasText("删除")).click();
-        Locator confirm = page.locator(".el-message-box:visible");
-        confirm.locator("button").filter(new Locator.FilterOptions().setHasText("确定")).click();
+        row.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName(Pattern.compile("删除"))).click();
+        Locator confirmDialog = page.getByRole(AriaRole.DIALOG)
+                .filter(new Locator.FilterOptions().setHasText("是否确认删除用户编号"));
+        assertThat(confirmDialog).isVisible();
+
+        Response response = page.waitForResponse(
+                candidate -> candidate.url().contains("/system/user/")
+                        && candidate.request().method().equals("DELETE"),
+                () -> confirmDialog.getByRole(AriaRole.BUTTON,
+                        new Locator.GetByRoleOptions().setName("确定").setExact(true)).click());
+        assertEquals(200, response.status(), "删除用户请求 HTTP 状态应为 200");
         assertThat(page.getByText("删除成功", new Page.GetByTextOptions().setExact(true))).isVisible();
     }
 
     private void captureFailureScreenshot() {
+        if (page == null) {
+            return;
+        }
         try {
             Path directory = Paths.get("target", "screenshots");
             Files.createDirectories(directory);
+            String fileName = "TC-001-user-management-" + SCREENSHOT_TIME.format(LocalDateTime.now()) + ".png";
             page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(directory.resolve("user-management-failure.png"))
+                    .setPath(directory.resolve(fileName))
                     .setFullPage(true));
         } catch (Exception ignored) {
             // 截图失败不能覆盖原始测试异常。
@@ -161,5 +214,13 @@ class UserManagementUiTest {
     private static String environment(String name, String defaultValue) {
         String value = System.getenv(name);
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private static double nonNegativeDoubleEnvironment(String name, String defaultValue) {
+        double value = Double.parseDouble(environment(name, defaultValue));
+        if (value < 0) {
+            throw new IllegalStateException(name + " 不能小于 0");
+        }
+        return value;
     }
 }

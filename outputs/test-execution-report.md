@@ -41,6 +41,8 @@
 | `automation/api/.env` | 仅修正 API base URL，由前端端口改为后端端口。 |
 | `automation/ui/` | 新增 Playwright Java 的 TC-001 Vue 核心流程及 API 兜底清理。 |
 | `scripts/run-all-tests.sh` | 新增环境检查、API 与 UI 的统一执行入口。 |
+| `scripts/export-ui-result.py` | 将 UI Surefire XML 转换为可提交的 Markdown 执行结果。 |
+| `outputs/ui-test-execution-report.md` | 持久化 UI 测试状态、明细、TC/AC 追踪与耗时。 |
 | `outputs/defect-report.md` | 汇总动态验证缺陷和静态待确认风险。 |
 | `outputs/review-signoff.md` | 增加 AC、TC 进入自动化前的人工评审门禁。 |
 | `outputs/test-execution-report.md` | 更新为本次真实执行结果。 |

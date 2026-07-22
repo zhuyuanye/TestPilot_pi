@@ -18,7 +18,7 @@ mvn -f "$ROOT_DIR/automation/api/pom.xml" -Dtest="$API_TEST_PATTERN" test
 api_status=$?
 
 printf '\n=== Vue UI core flow ===\n'
-mvn -f "$ROOT_DIR/automation/ui/pom.xml" test
+"$ROOT_DIR/scripts/run-ui-tests.sh"
 ui_status=$?
 
 printf '\n=== Summary ===\n'

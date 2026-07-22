@@ -8,5 +8,6 @@
 4. `test-execution-report.md`
 5. `defect-report.md`
 6. `review-signoff.md`
+7. `ui-test-execution-report.md`
 
-前四项由演示过程中的 OpenCode 生成并经过人工评审；缺陷清单由真实执行结果产生，确认单由团队人工签署。
+前四项由演示过程中的 OpenCode 生成并经过人工评审；缺陷清单由真实执行结果产生，确认单由团队人工签署。UI 报告由 `run-ui-tests.sh` 在每次执行后自动导出。
