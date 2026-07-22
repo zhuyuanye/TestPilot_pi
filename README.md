@@ -19,7 +19,8 @@
 - `presenter/live-demo-outline.html`：培训开场使用的单页完整流程大纲
 - `presenter/`：其他讲师材料，不在第一阶段提供给 OpenCode
 - `prompts/`：现场依次执行的 OpenCode 提示词（需求→证据→结论）
-- `runbook/`：30 分钟现场操作手册
+- `runbook/30-minute-demo.md`：30 分钟现场操作 Runbook
+- `runbook/30-minute-demo-script.md`：可直接照读的培训现场逐字稿
 - `demo-live/`：现场实时生成工作区；除说明文件外不提交 Git
 - `outputs/`：提前验证过的兜底输出，正常现场流程禁止 Agent 读取
 - `automation/`：提前验证过的兜底自动化，正常现场代码生成在 `demo-live/automation/`

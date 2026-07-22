@@ -1,5 +1,7 @@
 # 30 分钟现场演示 Runbook
 
+配套讲师逐字稿：`runbook/30-minute-demo-script.md`
+
 ## 1. 演示原则
 
 本演示的主角是**现场过程**，不是预置结果：
@@ -162,9 +164,15 @@ find demo-live/automation/ui/target -type f \
 
 ### 阶段 E：证明不是静态编造
 
-先保留成功证据，再由讲师手动使用错误地址执行一次：
+先归档成功证据，再由讲师手动使用错误地址执行一次：
 
 ```bash
+mkdir -p demo-live/logs/ui-success-artifacts
+cp -R demo-live/automation/ui/target/evidence \
+  demo-live/logs/ui-success-artifacts/
+cp demo-live/automation/ui/target/surefire-reports/TEST-*.xml \
+  demo-live/logs/ui-success-artifacts/
+
 RUOYI_UI_URL=http://localhost:9999 HEADLESS=true \
 mvn -f demo-live/automation/ui/pom.xml test \
   2>&1 | tee demo-live/logs/ui-negative-challenge.log
