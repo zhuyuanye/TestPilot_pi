@@ -16,7 +16,7 @@
 ## 目录
 
 - `docs/requirements/`：提供给 OpenCode 的原始需求
-- `presenter/live-demo-outline.html`：可直接全屏播放的现场大纲（方向键翻页，F 全屏）
+- `presenter/live-demo-outline.html`：培训开场使用的单页完整流程大纲
 - `presenter/`：其他讲师材料，不在第一阶段提供给 OpenCode
 - `prompts/`：现场依次执行的 OpenCode 提示词（需求→证据→结论）
 - `runbook/`：30 分钟现场操作手册

@@ -7,341 +7,176 @@
   <style>
     :root {
       --ink: #14213d;
-      --muted: #5d6678;
-      --paper: #f7f4ee;
-      --card: rgba(255,255,255,.78);
-      --line: rgba(20,33,61,.14);
-      --cyan: #00a6a6;
-      --cyan-dark: #007f7f;
+      --muted: #667085;
+      --paper: #f8f5ef;
+      --cyan: #008f8c;
       --orange: #ff6b35;
-      --yellow: #ffd166;
-      --green: #1f9d68;
-      --red: #d64545;
-      --shadow: 0 24px 70px rgba(20,33,61,.13);
+      --line: rgba(20, 33, 61, .13);
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: #111827; }
+    html, body { margin: 0; width: 100%; height: 100%; }
     body {
       color: var(--ink);
+      background: #111827;
       font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
       overflow: hidden;
     }
-    .deck { width: 100vw; height: 100vh; position: relative; }
-    .slide {
-      display: none;
-      position: absolute;
-      inset: 0;
-      padding: clamp(34px, 5vw, 82px) clamp(38px, 7vw, 120px) clamp(70px, 8vh, 98px);
+    main {
+      width: 100vw;
+      height: 100vh;
+      min-height: 650px;
+      padding: clamp(38px, 5.5vw, 86px) clamp(42px, 7vw, 116px);
+      display: flex;
+      flex-direction: column;
       background:
-        radial-gradient(circle at 88% 12%, rgba(0,166,166,.13), transparent 28%),
-        radial-gradient(circle at 7% 94%, rgba(255,107,53,.11), transparent 25%),
+        radial-gradient(circle at 92% 10%, rgba(0, 143, 140, .14), transparent 28%),
+        radial-gradient(circle at 5% 95%, rgba(255, 107, 53, .11), transparent 25%),
         var(--paper);
-      overflow: auto;
+      position: relative;
     }
-    .slide.active { display: flex; flex-direction: column; animation: enter .28s ease-out; }
-    @keyframes enter { from { opacity: 0; transform: translateY(8px); } }
-    .slide::after {
-      content: ""; position: fixed; top: 0; right: 0; width: 11px; height: 100vh;
+    main::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 100%;
       background: linear-gradient(var(--cyan), var(--orange));
     }
-    .kicker {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
-      color: var(--cyan-dark); font-size: clamp(13px, 1.2vw, 18px); font-weight: 800;
-      letter-spacing: .12em; text-transform: uppercase;
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--cyan);
+      font-size: clamp(13px, 1.1vw, 18px);
+      font-weight: 850;
+      letter-spacing: .12em;
     }
-    .kicker::before { content: ""; width: 38px; height: 4px; border-radius: 9px; background: var(--orange); }
-    h1, h2, h3, p { margin-top: 0; }
-    h1 { font-size: clamp(44px, 6vw, 92px); line-height: .98; letter-spacing: -.055em; margin-bottom: 28px; max-width: 1100px; }
-    h2 { font-size: clamp(34px, 4.4vw, 68px); line-height: 1.04; letter-spacing: -.045em; margin-bottom: 28px; }
-    h3 { font-size: clamp(18px, 1.8vw, 27px); margin-bottom: 12px; }
-    p, li { font-size: clamp(16px, 1.45vw, 23px); line-height: 1.55; }
-    .lead { max-width: 1020px; color: var(--muted); font-size: clamp(20px, 2.1vw, 33px); line-height: 1.45; }
-    .accent { color: var(--orange); }
-    .cyan { color: var(--cyan-dark); }
-    .badge {
-      display: inline-flex; width: max-content; align-items: center; gap: 9px;
-      padding: 9px 14px; border: 1px solid rgba(0,127,127,.24); border-radius: 999px;
-      background: rgba(0,166,166,.1); color: var(--cyan-dark); font-weight: 800; font-size: 14px;
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--orange);
     }
-    .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(31,157,104,.12); }
-    .hero-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: auto; }
-    .meta-card, .card {
-      border: 1px solid var(--line); background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
+    h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(42px, 5vw, 76px);
+      line-height: 1.02;
+      letter-spacing: -.05em;
     }
-    .meta-card { min-width: 190px; padding: 18px 22px; }
-    .meta-card b { display: block; font-size: 28px; color: var(--cyan-dark); }
-    .meta-card span { color: var(--muted); font-size: 14px; }
-    .grid { display: grid; gap: 18px; }
-    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .card { padding: clamp(20px, 2.2vw, 34px); }
-    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
-    .card ul { margin: 0; padding-left: 1.15em; }
-    .card li + li { margin-top: 7px; }
-    .number { font-size: 13px; color: var(--orange); font-weight: 900; letter-spacing: .1em; }
-    .flow { display: flex; align-items: stretch; gap: 10px; margin-top: 20px; }
-    .flow-step {
-      flex: 1; min-width: 0; padding: 18px 12px; border-radius: 16px; text-align: center;
-      border: 1px solid var(--line); background: rgba(255,255,255,.7); font-weight: 800;
-      display: flex; align-items: center; justify-content: center; font-size: clamp(14px, 1.25vw, 20px);
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 1.8vw, 28px);
     }
-    .arrow { display: flex; align-items: center; color: var(--orange); font-size: 28px; }
-    .rule { border-left: 5px solid var(--cyan); padding-left: 18px; margin: 20px 0; }
-    .rule strong { color: var(--cyan-dark); }
-    .timeline { display: grid; grid-template-columns: 94px 1fr; gap: 0 20px; }
-    .time { color: var(--orange); font-weight: 900; font-size: 18px; padding: 10px 0; border-right: 2px solid rgba(0,166,166,.25); }
-    .event { padding: 8px 0 12px; font-size: clamp(15px, 1.25vw, 20px); }
-    .event b { color: var(--ink); }
-    .event span { color: var(--muted); }
-    code, pre { font-family: "SFMono-Regular", Consolas, monospace; }
-    pre {
-      margin: 14px 0 0; padding: 18px 20px; overflow: auto; border-radius: 15px;
-      color: #d8f3ef; background: #14213d; font-size: clamp(12px, 1vw, 16px); line-height: 1.55;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.07);
+    .flow {
+      margin: auto 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px 26px;
+      counter-reset: stage;
     }
-    .gate {
-      display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 15px 18px;
-      border-radius: 14px; background: rgba(255,209,102,.25); border: 1px solid rgba(180,130,0,.18);
-      font-size: clamp(14px, 1.2vw, 19px); font-weight: 750;
+    .step {
+      counter-increment: stage;
+      min-height: clamp(110px, 15vh, 150px);
+      padding: clamp(18px, 2vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .76);
+      box-shadow: 0 18px 50px rgba(20, 33, 61, .08);
+      position: relative;
     }
-    .gate::before { content: "人工门禁"; padding: 5px 8px; border-radius: 8px; background: var(--yellow); font-size: 12px; white-space: nowrap; }
-    .evidence { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; }
-    .file-tree { white-space: pre; font-family: monospace; line-height: 1.65; font-size: clamp(13px, 1.15vw, 18px); }
-    .status { display: inline-block; font-weight: 900; padding: 3px 9px; border-radius: 8px; font-size: 13px; }
-    .status.green { color: #0b6d45; background: rgba(31,157,104,.13); }
-    .status.red { color: #9d2929; background: rgba(214,69,69,.13); }
-    .do-not { border-color: rgba(214,69,69,.25); background: rgba(255,255,255,.82); }
-    .do-not h3 { color: var(--red); }
-    .footer {
-      position: fixed; left: 0; bottom: 0; width: 100%; height: 52px; padding: 0 28px;
-      display: flex; align-items: center; justify-content: space-between; z-index: 10;
-      color: rgba(255,255,255,.8); background: rgba(17,24,39,.96); font-size: 13px;
+    .step::before {
+      content: "0" counter(stage);
+      display: block;
+      margin-bottom: 10px;
+      color: var(--orange);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .1em;
     }
-    .progress { position: fixed; left: 0; bottom: 52px; height: 4px; background: var(--orange); z-index: 11; transition: width .25s; }
-    .controls { display: flex; align-items: center; gap: 8px; }
-    button {
-      border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: white;
-      border-radius: 8px; padding: 6px 10px; cursor: pointer;
+    .step:not(:nth-child(4)):not(:nth-child(8))::after {
+      content: "→";
+      position: absolute;
+      right: -22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--orange);
+      font-size: 24px;
+      font-weight: 800;
     }
-    button:hover { background: rgba(255,255,255,.16); }
-    .big-quote { font-size: clamp(27px, 3.2vw, 50px); line-height: 1.3; max-width: 1120px; font-weight: 800; }
-    .small { font-size: clamp(13px, 1vw, 16px); color: var(--muted); }
+    .step h2 {
+      margin: 0 0 7px;
+      font-size: clamp(18px, 1.55vw, 25px);
+      letter-spacing: -.02em;
+    }
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(13px, 1.05vw, 17px);
+      line-height: 1.45;
+    }
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--muted);
+      font-size: clamp(12px, 1vw, 15px);
+    }
+    .tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(0, 143, 140, .09);
+      border: 1px solid rgba(0, 143, 140, .17);
+      font-weight: 750;
+    }
+    .note { font-weight: 700; }
+    .note strong { color: var(--orange); }
     @media (max-width: 900px) {
-      .grid.two, .grid.three, .evidence { grid-template-columns: 1fr; }
-      .flow { flex-wrap: wrap; }
-      .flow-step { flex-basis: 30%; }
-      .arrow { display: none; }
+      body { overflow: auto; }
+      main { height: auto; min-height: 100vh; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 36px 0; }
+      .step::after { display: none; }
+      footer { align-items: flex-start; flex-direction: column; }
     }
     @media print {
-      body { overflow: visible; background: white; }
-      .deck { height: auto; }
-      .slide, .slide.active { display: flex; position: relative; width: 100%; height: 100vh; page-break-after: always; }
-      .footer, .progress { display: none; }
+      body { background: white; }
+      main { width: 100%; height: 100vh; }
     }
   </style>
 </head>
 <body>
-<main class="deck" aria-label="演示大纲">
-  <section class="slide active">
-    <div class="kicker">Live Demo · 30 Minutes</div>
-    <span class="badge">现场生成优先</span>
-    <h1>OpenCode × RuoYi-Vue<br><span class="accent">自动化测试实战</span></h1>
-    <p class="lead">从一份原始需求出发，现场完成澄清、AC、测试设计、实现取证、API/UI 自动化、证据核验与测试结论。</p>
-    <div class="hero-meta">
-      <div class="meta-card"><b>30 min</b><span>完整测试闭环</span></div>
-      <div class="meta-card"><b>API 主</b><span>RestAssured + JUnit 5</span></div>
-      <div class="meta-card"><b>UI 辅</b><span>Playwright Java</span></div>
-      <div class="meta-card"><b>0 CI/CD</b><span>聚焦测试活动本身</span></div>
-    </div>
+<main>
+  <header>
+    <div class="eyebrow">TODAY'S JOURNEY · 30 MINUTES</div>
+    <h1>OpenCode × RuoYi-Vue<br>自动化测试完整流程</h1>
+    <p class="subtitle">从一份原始需求出发，现场走完可追溯、可执行、可复核的测试闭环</p>
+  </header>
+
+  <section class="flow" aria-label="今天的主要内容">
+    <article class="step"><h2>原始需求</h2><p>只提供业务需求，不预置 AC 和测试答案</p></article>
+    <article class="step"><h2>分析与澄清</h2><p>识别规则、歧义、风险，并由产品现场确认</p></article>
+    <article class="step"><h2>验收标准</h2><p>生成可测试、可追溯的 AC，并进行人工评审</p></article>
+    <article class="step"><h2>测试设计</h2><p>设计用例，完成 API、UI 与人工测试分层</p></article>
+    <article class="step"><h2>实现对照</h2><p>检查 Java、Vue 真实实现与需求之间的差异</p></article>
+    <article class="step"><h2>自动化实现</h2><p>API 为主，UI 覆盖一个核心用户流程</p></article>
+    <article class="step"><h2>真实执行</h2><p>运行测试，保留日志、XML、Trace 和截图证据</p></article>
+    <article class="step"><h2>诊断与结论</h2><p>区分产品、脚本和环境问题，形成测试结论</p></article>
   </section>
 
-  <section class="slide">
-    <div class="kicker">目标与边界</div>
-    <h2>今天不是展示“一个答案”<br>而是展示<span class="cyan">答案如何产生</span></h2>
-    <div class="grid three">
-      <article class="card"><div class="number">01 · INPUT</div><h3>唯一初始输入</h3><p>只向 Agent 提供原始用户管理需求。AC、用例和代码不预先进入上下文。</p></article>
-      <article class="card"><div class="number">02 · COLLABORATION</div><h3>人机协作</h3><p>Agent 提问和生成候选稿；产品、开发、测试负责澄清、评审和确认。</p></article>
-      <article class="card"><div class="number">03 · EVIDENCE</div><h3>证据优先</h3><p>结论必须回到源码、HTTP 响应、Surefire XML、Trace 和截图。</p></article>
+  <footer>
+    <div class="tags">
+      <span class="tag">Java + JUnit 5</span>
+      <span class="tag">RestAssured</span>
+      <span class="tag">Playwright Java</span>
+      <span class="tag">不包含 CI/CD</span>
     </div>
-    <div class="rule"><strong>硬约束：</strong>不修改 RuoYi-Vue 业务源码；实现与需求冲突时，不通过弱化断言伪造绿色结果。</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">现场与兜底</div>
-    <h2>两条路径，<span class="accent">绝不混用</span></h2>
-    <div class="grid two">
-      <article class="card">
-        <span class="status green">默认路径</span>
-        <h3>demo-live/ 现场工作区</h3>
-        <ul><li>分析、AC、TC 现场生成</li><li>API/UI 工程从零创建</li><li>日志、退出码、Trace、截图现场产生</li><li>最终报告从原始证据生成</li></ul>
-      </article>
-      <article class="card do-not">
-        <span class="status red">仅故障兜底</span>
-        <h3>outputs/ · automation/ · checkpoints/</h3>
-        <ul><li>正常过程禁止 Agent 读取</li><li>只切换失败的单个阶段</li><li>必须口头声明</li><li>写入 FALLBACK_USED.md 留痕</li></ul>
-      </article>
-    </div>
-    <pre>./scripts/prepare-live-demo.sh --reset
-find demo-live -maxdepth 2 -type f -print</pre>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">全程路线</div>
-    <h2>30 分钟，八个现场阶段</h2>
-    <div class="timeline">
-      <div class="time">00–05</div><div class="event"><b>Prompt 01</b>　<span>阅读原始需求，提取规则与待澄清问题</span></div>
-      <div class="time">05–10</div><div class="event"><b>产品澄清 + Prompt 02</b>　<span>候选 AC、自检、人工评审</span></div>
-      <div class="time">10–13</div><div class="event"><b>Prompt 03</b>　<span>测试设计，API/UI/人工分层</span></div>
-      <div class="time">13–16</div><div class="event"><b>Prompt 04</b>　<span>打开真实 Java/Vue 源码取证</span></div>
-      <div class="time">16–21</div><div class="event"><b>Prompt 05</b>　<span>现场生成并执行 P0 API 自动化</span></div>
-      <div class="time">21–25</div><div class="event"><b>Prompt 06</b>　<span>现场生成 UI 核心流程与证据</span></div>
-      <div class="time">25–28</div><div class="event"><b>Prompt 07</b>　<span>核验原始结果、诊断失败、形成缺陷</span></div>
-      <div class="time">28–30</div><div class="event"><b>Prompt 08</b>　<span>人工评审收口，不由 Agent 代签</span></div>
-    </div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">需求 → AC</div>
-    <h2>先提问，再定义“什么叫通过”</h2>
-    <div class="flow">
-      <div class="flow-step">原始需求</div><div class="arrow">→</div>
-      <div class="flow-step">规则与歧义</div><div class="arrow">→</div>
-      <div class="flow-step">产品澄清</div><div class="arrow">→</div>
-      <div class="flow-step">候选 AC</div><div class="arrow">→</div>
-      <div class="flow-step">人工评审</div>
-    </div>
-    <div class="grid two" style="margin-top:24px">
-      <article class="card"><h3>Agent 应发现</h3><ul><li>必填项与长度边界</li><li>用户名大小写唯一性</li><li>合法手机号定义</li><li>删除后的列表/详情一致性</li></ul></article>
-      <article class="card"><h3>Agent 不得做</h3><ul><li>自行补充密码复杂度</li><li>把当前实现写成需求</li><li>跳过阻塞问题直接生成 AC</li><li>未经确认直接落盘</li></ul></article>
-    </div>
-    <div class="gate">只有现场输入“AC 评审通过”，才写入 demo-live/outputs/。</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">测试设计 → 实现取证</div>
-    <h2>分层验证，避免“UI 测一切”</h2>
-    <div class="grid three">
-      <article class="card"><h3 class="cyan">API 自动化</h3><p>必填、边界、唯一性、手机号、权限与删除一致性。</p></article>
-      <article class="card"><h3 class="cyan">UI 自动化</h3><p>只保留一个真实核心流程：登录、新增、搜索、删除。</p></article>
-      <article class="card"><h3 class="cyan">人工测试</h3><p>主观体验、探索性场景和不适合稳定自动化的检查。</p></article>
-    </div>
-    <div class="rule"><strong>实现取证：</strong>每项结论必须给出文件路径、类/方法和关键逻辑；静态分析只说明风险，不能宣告动态通过。</div>
-    <div class="gate">现场抽查至少两个源码位置，再输入“实现分析评审通过”。</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">API 主线</div>
-    <h2>现场创建最小但完整的纵向闭环</h2>
-    <div class="flow">
-      <div class="flow-step">登录</div><div class="arrow">→</div>
-      <div class="flow-step">新增</div><div class="arrow">→</div>
-      <div class="flow-step">查询</div><div class="arrow">→</div>
-      <div class="flow-step">重复新增</div><div class="arrow">→</div>
-      <div class="flow-step">删除</div><div class="arrow">→</div>
-      <div class="flow-step">确认不存在</div>
-    </div>
-    <div class="grid two" style="margin-top:22px">
-      <article class="card"><h3>可信断言</h3><ul><li>HTTP 状态</li><li>业务 code / message</li><li>关键响应字段</li><li>列表与详情一致性</li></ul></article>
-      <article class="card"><h3>可重复执行</h3><ul><li>动态用户名和手机号</li><li>不依赖执行顺序</li><li>AfterEach / finally 清理</li><li>清理失败必须报告</li></ul></article>
-    </div>
-    <pre>mvn -f demo-live/automation/api/pom.xml test \
-  2>&1 | tee demo-live/logs/api-p0.log</pre>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">UI 证据</div>
-    <h2>看得见的浏览器，也要有<span class="accent">可复核证据</span></h2>
-    <div class="evidence">
-      <article class="card">
-        <div class="file-tree">demo-live/automation/ui/target/evidence/
-└── TC-001-&lt;timestamp&gt;/
-    ├── 01-user-created-and-found.png
-    ├── 02-user-deleted.png
-    ├── failure-&lt;timestamp&gt;.png
-    └── trace.zip</div>
-      </article>
-      <article class="card"><h3>现场核验</h3><ul><li>打开两张本轮截图</li><li>Trace Viewer 查看页面快照</li><li>检查新增 POST</li><li>检查删除 DELETE</li><li>核对文件大小与 SHA-256</li></ul></article>
-    </div>
-    <div class="rule"><strong>隐私提醒：</strong>Trace 可能包含请求和输入操作，只保存在本地或受控存储，不提交公开仓库。</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">反向验证</div>
-    <h2>如何证明不是 LLM 编造？</h2>
-    <p class="big-quote">让测试在正确环境下<span class="cyan">变绿</span>，再由讲师故意破坏环境，亲眼看它<span class="accent">变红</span>。</p>
-    <pre>RUOYI_UI_URL=http://localhost:9999 HEADLESS=true \
-mvn -f demo-live/automation/ui/pom.xml test \
-  2>&1 | tee demo-live/logs/ui-negative-challenge.log
-
-challenge_status=${PIPESTATUS[0]}</pre>
-    <div class="grid three" style="margin-top:20px">
-      <article class="card"><h3>① 非零退出码</h3><p>不是只看 Agent 摘要。</p></article>
-      <article class="card"><h3>② 新失败证据</h3><p>失败截图、Trace、XML 同步产生。</p></article>
-      <article class="card"><h3>③ 恢复后重跑</h3><p>证明测试响应真实系统状态。</p></article>
-    </div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">失败诊断</div>
-    <h2>失败不是终点，错误分类才是价值</h2>
-    <div class="grid two">
-      <article class="card"><h3>每个失败都回答</h3><ul><li>AC 预期是什么？</li><li>真实响应或页面是什么？</li><li>源码证据指向哪里？</li><li>能否稳定复现并清理？</li></ul></article>
-      <article class="card"><h3>四类结论</h3><ul><li><span class="status red">产品缺陷</span> 实现不满足 AC</li><li>测试脚本缺陷</li><li>环境或配置问题</li><li>未覆盖 / 未证实风险</li></ul></article>
-    </div>
-    <div class="rule"><strong>底线：</strong>实现和需求冲突时，记录差异与缺陷；不改需求、不弱化断言、不把静态推测写成动态通过。</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">收口</div>
-    <h2>Agent 提效，<span class="cyan">人负责决策</span></h2>
-    <div class="grid three">
-      <article class="card"><div class="number">AGENT</div><h3>提取与生成</h3><p>分析、候选 AC、测试设计、代码、证据汇总和诊断建议。</p></article>
-      <article class="card"><div class="number">HUMAN</div><h3>评审与确认</h3><p>澄清需求、审查追踪、判断风险、确认分类和决定是否验收。</p></article>
-      <article class="card"><div class="number">EVIDENCE</div><h3>事实与复核</h3><p>源码、HTTP、XML、日志、Trace、截图和 SHA-256 支撑每个结论。</p></article>
-    </div>
-    <p class="big-quote" style="margin-top:auto">最终交付的不是“全绿截图”，<br>而是一条<span class="accent">可追溯、可复现、可解释</span>的测试闭环。</p>
-    <p class="small">产品、开发、测试签字由团队成员完成，Agent 不代签。</p>
-  </section>
+    <div class="note"><strong>现场生成优先</strong> · 人工评审把关 · 预置材料仅作兜底</div>
+  </footer>
 </main>
-
-<div class="progress" id="progress"></div>
-<footer class="footer">
-  <span>OpenCode × RuoYi-Vue · 现场演示大纲</span>
-  <div class="controls">
-    <button type="button" id="prev" aria-label="上一页">←</button>
-    <span id="counter">1 / 11</span>
-    <button type="button" id="next" aria-label="下一页">→</button>
-    <button type="button" id="fullscreen" title="全屏（F）">全屏</button>
-  </div>
-</footer>
-<script>
-  const slides = [...document.querySelectorAll('.slide')];
-  const counter = document.getElementById('counter');
-  const progress = document.getElementById('progress');
-  let index = Math.max(0, Math.min(slides.length - 1, Number(location.hash.slice(1)) - 1 || 0));
-
-  function show(next) {
-    index = Math.max(0, Math.min(slides.length - 1, next));
-    slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-    counter.textContent = `${index + 1} / ${slides.length}`;
-    progress.style.width = `${((index + 1) / slides.length) * 100}%`;
-    history.replaceState(null, '', `#${index + 1}`);
-  }
-  function fullscreen() {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
-    else document.exitFullscreen?.();
-  }
-  document.getElementById('prev').addEventListener('click', () => show(index - 1));
-  document.getElementById('next').addEventListener('click', () => show(index + 1));
-  document.getElementById('fullscreen').addEventListener('click', fullscreen);
-  document.addEventListener('keydown', (event) => {
-    if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); show(index + 1); }
-    if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); show(index - 1); }
-    if (event.key === 'Home') show(0);
-    if (event.key === 'End') show(slides.length - 1);
-    if (event.key.toLowerCase() === 'f') fullscreen();
-  });
-  show(index);
-</script>
 </body>
 </html>

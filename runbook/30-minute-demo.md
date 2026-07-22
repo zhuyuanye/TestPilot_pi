@@ -61,7 +61,7 @@ find demo-live -maxdepth 2 -type f -print
 open presenter/live-demo-outline.html
 ```
 
-使用方向键/空格翻页，`F` 进入全屏，`Home`/`End` 跳转首尾。建议用前 4 页开场，按阶段使用对应过渡页，最后一页收口；实际操作时切回 OpenCode、源码、终端和浏览器。
+这是培训开场单页，只介绍今天的主要内容和完整流程。浏览器全屏展示约 1 分钟后，切回 OpenCode、源码、终端和浏览器开始现场操作。
 
 ### 2.4 屏幕布局
 
