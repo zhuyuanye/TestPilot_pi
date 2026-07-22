@@ -2,6 +2,7 @@
 set -euo pipefail
 
 BASE_URL="${RUOYI_BASE_URL:-http://localhost:8080}"
+UI_URL="${RUOYI_UI_URL:-http://localhost:8081}"
 RUOYI_PATH="${RUOYI_PATH:-/Users/zhuyuanye/Documents/Code/RuoYi-Vue}"
 
 [[ -f "$RUOYI_PATH/pom.xml" ]] || { echo "[FAIL] 未找到 RuoYi-Vue: $RUOYI_PATH"; exit 1; }
@@ -12,6 +13,12 @@ response="$(curl --fail --silent --show-error --max-time 3 "$BASE_URL/captchaIma
   exit 1
 }
 echo "[OK] 后端可访问: $BASE_URL"
+
+curl --fail --silent --show-error --max-time 3 "$UI_URL" >/dev/null || {
+  echo "[FAIL] Vue 前端不可访问: $UI_URL"
+  exit 1
+}
+echo "[OK] Vue 前端可访问: $UI_URL"
 
 python3 - "$response" <<'PY'
 import json, sys

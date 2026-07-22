@@ -25,6 +25,22 @@ UserRequirementGapTest: Skipped: 2
 
 已验证：合法新增、列表查询、默认正常状态、精确重复用户名拒绝、删除后列表不可见、禁止删除当前用户。
 
+## Vue UI 核心流程结果
+
+执行：
+
+```bash
+HEADLESS=true scripts/run-ui-tests.sh
+```
+
+结果：
+
+```text
+UserManagementUiTest: Tests run: 1, Failures: 0, Errors: 0
+```
+
+已通过真实 Vue 页面验证：管理员登录、新增用户、搜索确认、页面删除以及列表消失；同时通过 API 进行兜底清理。现场实际编号以 `outputs/` 为准（当前为 TC-001、AC-01/19/20/21/22）。
+
 ## 需求差异结果
 
 执行：
@@ -46,10 +62,11 @@ Tests run: 2, Failures: 2, Errors: 0
 
 ## 覆盖与风险
 
-- 已自动化：AC-01、AC-02、AC-04、AC-11、AC-13。
+- API 已自动化：AC-01、AC-02、AC-04、AC-11、AC-13。
+- UI 已自动化：TC-001，对应 AC-01、AC-19、AC-20、AC-21、AC-22。
 - 已作为差异测试：AC-03、AC-10。
 - 待补充：大小写唯一性、昵称、密码边界、删除后详情、删除不存在用户。
-- UI 主流程尚未自动化；Vue 前端校验不能替代 API 校验。
+- UI 测试只覆盖核心流程；Vue 前端校验不能替代 API 校验。
 
 ## 测试结论
 

@@ -16,9 +16,10 @@
 | 05:00–08:00 | 提供产品澄清并执行 Prompt 02 | AC 由 Agent 从需求与澄清中生成，人工负责确认 |
 | 08:00–11:00 | 执行 Prompt 03 | 从 AC 推导用例，并做 API/UI/人工分层 |
 | 11:00–15:00 | 执行 Prompt 04 | 区分“需求应该怎样”和“代码实际怎样” |
-| 15:00–23:00 | 执行 Prompt 05 或展示预生成代码 | 完成登录、新增、查询、重复新增、删除闭环 |
-| 23:00–26:00 | 运行预置失败场景 | 读取日志、定位原因，不通过弱化断言伪造成功 |
-| 26:00–28:00 | 查看测试结论和追踪关系 | 从 AC 追踪到用例、代码和结果 |
+| 15:00–21:00 | 执行 Prompt 05 或展示预生成 API 代码 | 完成登录、新增、查询、重复新增、删除闭环 |
+| 21:00–24:00 | 运行 Playwright Java UI 场景 | Vue 页面登录、新增、查询和删除 |
+| 24:00–27:00 | 运行预置失败场景 | 读取日志、定位原因，不通过弱化断言伪造成功 |
+| 27:00–28:00 | 查看测试结论和追踪关系 | 从 AC 追踪到用例、代码和结果 |
 | 28:00–30:00 | 总结 | Agent 提效点、人工控制点和适用边界 |
 
 ## 现场执行顺序
@@ -27,11 +28,12 @@
 2. 复制 `prompts/01-requirement-analysis.md` 中的提示词。
 3. OpenCode 给出问题后，模拟产品角色提供 `presenter/product-clarifications.md`。
 4. 依次执行 Prompt 02、03、04。
-5. Prompt 05 先让 Agent 输出计划，确认后再允许修改代码。
+5. Prompt 05 先生成 API 自动化，Prompt 06 再生成一个 UI 核心场景；两者都先确认计划再编码。
 6. 先执行 `scripts/check-demo-env.sh` 检查环境。
-7. 执行 `scripts/run-api-tests.sh`，展示真实日志和报告。
-8. 使用 `RUN_REQUIREMENT_GAPS=true` 执行差异用例，展示失败诊断。
-9. 最后打开 `outputs/test-execution-report.md`。
+7. 执行 `scripts/run-api-tests.sh`，展示 API 日志和报告。
+8. 使用 `HEADLESS=false SLOW_MO=300 scripts/run-ui-tests.sh` 演示 Vue 页面流程。
+9. 使用 `RUN_REQUIREMENT_GAPS=true` 执行差异用例，展示失败诊断。
+10. 最后打开 `outputs/test-execution-report.md`。
 
 ## 必须提前缓存的材料
 

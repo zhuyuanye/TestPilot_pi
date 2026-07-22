@@ -2,6 +2,9 @@
 .idea/
 .vscode/
 *.iml
+**/.classpath
+**/.project
+**/.settings/
 
 # Java / Node build outputs
 **/target/
@@ -18,6 +21,8 @@
 **/allure-results/
 **/allure-report/
 **/test-results/
+**/playwright-report/
+**/screenshots/
 
 # OS
 .DS_Store
