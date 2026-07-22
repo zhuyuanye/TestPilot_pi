@@ -56,12 +56,27 @@ HEADLESS=false SLOW_MO=300 ./scripts/run-ui-tests.sh
 
 `outputs/ui-test-execution-report.md`
 
-该 Markdown 报告包含执行状态、通过/失败数量、TC/AC 追踪、耗时和失败摘要，可以提交 Git。
+该 Markdown 报告包含执行状态、通过/失败数量、TC/AC 追踪、耗时、失败摘要，以及原始证据文件的 SHA-256，可以提交 Git。
 
-## 失败证据
+## Trace 与截图证据
 
-失败截图保存到：
+每次执行前会清空旧证据，并为本次运行创建唯一目录：
 
-`automation/ui/target/screenshots/TC-001-user-management-<timestamp>.png`
+```text
+automation/ui/target/evidence/TC-001-<timestamp>/
+├── 01-user-created-and-found.png
+├── 02-user-deleted.png
+├── failure-<timestamp>.png       # 仅失败时生成
+└── trace.zip
+```
 
-截图名称不包含用户名、密码或 Token。测试日志不打印请求体、Authorization Header 或完整 Token。
+查看 Trace：
+
+```bash
+cd automation/ui
+mvn -Dexec.mainClass=com.microsoft.playwright.CLI \
+  -Dexec.args="show-trace target/evidence/TC-001-<timestamp>/trace.zip" \
+  -Dexec.classpathScope=test exec:java
+```
+
+证据目录位于 `target/`，默认不提交 Git。Trace 含页面快照、网络信息和输入操作，可能涉及测试账号信息，只能保存在本地或受控存储中。截图只在新增查询验证完成后、删除验证完成后及失败现场生成，登录页不会作为成功截图保存。测试日志不打印密码、Authorization Header 或完整 Token。

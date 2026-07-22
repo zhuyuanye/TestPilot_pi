@@ -18,6 +18,7 @@ export HEADLESS="${HEADLESS:-true}"
 export SLOW_MO="${SLOW_MO:-0}"
 
 rm -f "$ROOT_DIR"/automation/ui/target/surefire-reports/TEST-*.xml
+rm -rf "$ROOT_DIR/automation/ui/target/evidence"
 mvn -f "$ROOT_DIR/automation/ui/pom.xml" test "$@"
 test_status=$?
 

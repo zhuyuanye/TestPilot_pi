@@ -1,6 +1,6 @@
 # Vue UI 自动化执行结果
 
-> 由 `scripts/export-ui-result.py` 从 Maven Surefire XML 自动生成，时间：`2026-07-22T14:50:59+08:00`。
+> 由 `scripts/export-ui-result.py` 从 Maven Surefire XML 自动生成，时间：`2026-07-22T15:12:20+08:00`。
 
 ## 执行结论
 
@@ -24,7 +24,17 @@
 
 | 测试 | 状态 | 耗时（秒） | 失败摘要 |
 |---|---|---:|---|
-| shouldCreateFindAndDeleteUserFromVuePage | 通过 | 6.322 |  |
+| shouldCreateFindAndDeleteUserFromVuePage | 通过 | 6.302 |  |
+
+## 原始执行证据
+
+| 文件 | 大小（字节） | SHA-256 |
+|---|---:|---|
+| `automation/ui/target/evidence/TC-001-20260722-151215-930/01-user-created-and-found.png` | 117259 | `189887ffa31cdeb2508b9482817cc5679e081826d41588a20964eabb672e231a` |
+| `automation/ui/target/evidence/TC-001-20260722-151215-930/02-user-deleted.png` | 106407 | `05f6ed2ce165c9ec97de6cc854a4bba9282b254446190644672978880a03c02a` |
+| `automation/ui/target/evidence/TC-001-20260722-151215-930/trace.zip` | 5111888 | `21bff81c23477c2e43bd43211fcd2ad539a3f9b9c17eaf01c797559e190f0dde` |
+
+> Trace 可能包含页面快照、请求信息及输入操作，仅用于本地或受控环境，不提交公开仓库。
 
 ## 执行环境
 
@@ -32,7 +42,7 @@
 - API 地址：`http://localhost:8080`
 - 框架：Playwright Java + JUnit 5 + Chromium
 - 原始临时结果：`automation/ui/target/surefire-reports/`（不提交 Git）
-- 失败截图：`automation/ui/target/screenshots/TC-001-user-management-<timestamp>.png`
+- Trace 与截图：`automation/ui/target/evidence/TC-001-<timestamp>/`（不提交 Git）
 
 ## 执行命令
 

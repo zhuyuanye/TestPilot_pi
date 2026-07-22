@@ -7,6 +7,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Tracing;
 import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,8 @@ class UserManagementUiTest {
     private Browser browser;
     private BrowserContext context;
     private Page page;
+    private Path evidenceDirectory;
+    private boolean traceStarted;
     private String createdUserName;
     private boolean testFailed;
 
@@ -43,6 +46,14 @@ class UserManagementUiTest {
                 .setHeadless(headless)
                 .setSlowMo(slowMo));
         context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1440, 900));
+        evidenceDirectory = Paths.get("target", "evidence",
+                "TC-001-" + SCREENSHOT_TIME.format(LocalDateTime.now()));
+        createDirectories(evidenceDirectory);
+        context.tracing().start(new Tracing.StartOptions()
+                .setScreenshots(true)
+                .setSnapshots(true)
+                .setSources(true));
+        traceStarted = true;
         page = context.newPage();
         page.setDefaultTimeout(15_000);
     }
@@ -60,6 +71,7 @@ class UserManagementUiTest {
             }
             System.err.println("[cleanup] UI 测试数据兜底清理失败：" + cleanupError.getMessage());
         } finally {
+            stopTrace();
             if (context != null) {
                 context.close();
             }
@@ -92,9 +104,11 @@ class UserManagementUiTest {
             assertThat(row).containsText(nickName);
             assertThat(row).containsText(phone);
             assertThat(row.getByRole(AriaRole.SWITCH)).isChecked();
+            captureEvidenceScreenshot("01-user-created-and-found.png");
 
             deleteUser(row);
             assertThat(userNameLink(createdUserName)).hasCount(0);
+            captureEvidenceScreenshot("02-user-deleted.png");
         } catch (RuntimeException | AssertionError error) {
             testFailed = true;
             captureFailureScreenshot();
@@ -185,21 +199,45 @@ class UserManagementUiTest {
                         new Locator.GetByRoleOptions().setName("确定").setExact(true)).click());
         assertEquals(200, response.status(), "删除用户请求 HTTP 状态应为 200");
         assertThat(page.getByText("删除成功", new Page.GetByTextOptions().setExact(true))).isVisible();
+        assertThat(confirmDialog).isHidden();
+    }
+
+    private void captureEvidenceScreenshot(String fileName) {
+        if (page == null || evidenceDirectory == null) {
+            return;
+        }
+        page.screenshot(new Page.ScreenshotOptions()
+                .setPath(evidenceDirectory.resolve(fileName))
+                .setFullPage(true));
     }
 
     private void captureFailureScreenshot() {
-        if (page == null) {
+        try {
+            captureEvidenceScreenshot("failure-" + SCREENSHOT_TIME.format(LocalDateTime.now()) + ".png");
+        } catch (Exception ignored) {
+            // 截图失败不能覆盖原始测试异常。
+        }
+    }
+
+    private void stopTrace() {
+        if (!traceStarted || context == null || evidenceDirectory == null) {
             return;
         }
         try {
-            Path directory = Paths.get("target", "screenshots");
+            context.tracing().stop(new Tracing.StopOptions()
+                    .setPath(evidenceDirectory.resolve("trace.zip")));
+        } catch (Exception traceError) {
+            System.err.println("[evidence] Playwright trace 保存失败：" + traceError.getMessage());
+        } finally {
+            traceStarted = false;
+        }
+    }
+
+    private static void createDirectories(Path directory) {
+        try {
             Files.createDirectories(directory);
-            String fileName = "TC-001-user-management-" + SCREENSHOT_TIME.format(LocalDateTime.now()) + ".png";
-            page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(directory.resolve(fileName))
-                    .setFullPage(true));
-        } catch (Exception ignored) {
-            // 截图失败不能覆盖原始测试异常。
+        } catch (Exception error) {
+            throw new IllegalStateException("无法创建 UI 证据目录：" + directory, error);
         }
     }
 

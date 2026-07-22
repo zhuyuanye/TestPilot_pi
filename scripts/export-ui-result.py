@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 import xml.etree.ElementTree as ET
@@ -45,6 +46,8 @@ def main() -> int:
 
     passed = totals["tests"] - totals["failures"] - totals["errors"] - totals["skipped"]
     overall = "通过" if files and totals["failures"] == 0 and totals["errors"] == 0 else "失败或未执行"
+    evidence_root = ROOT / "automation" / "ui" / "target" / "evidence"
+    evidence_files = sorted(path for path in evidence_root.rglob("*") if path.is_file())
     generated = datetime.now().astimezone().isoformat(timespec="seconds")
     ui_url = os.getenv("RUOYI_UI_URL", "http://localhost:8081")
     api_url = os.getenv("RUOYI_BASE_URL", "http://localhost:8080")
@@ -84,13 +87,30 @@ def main() -> int:
 
     lines.extend([
         "",
+        "## 原始执行证据",
+        "",
+        "| 文件 | 大小（字节） | SHA-256 |",
+        "|---|---:|---|",
+    ])
+    if evidence_files:
+        for path in evidence_files:
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            relative = path.relative_to(ROOT).as_posix()
+            lines.append(f"| `{relative}` | {path.stat().st_size} | `{digest}` |")
+    else:
+        lines.append("| 未生成 Trace 或截图 | 0 | - |")
+
+    lines.extend([
+        "",
+        "> Trace 可能包含页面快照、请求信息及输入操作，仅用于本地或受控环境，不提交公开仓库。",
+        "",
         "## 执行环境",
         "",
         f"- Vue 地址：`{ui_url}`",
         f"- API 地址：`{api_url}`",
         "- 框架：Playwright Java + JUnit 5 + Chromium",
         "- 原始临时结果：`automation/ui/target/surefire-reports/`（不提交 Git）",
-        "- 失败截图：`automation/ui/target/screenshots/TC-001-user-management-<timestamp>.png`",
+        "- Trace 与截图：`automation/ui/target/evidence/TC-001-<timestamp>/`（不提交 Git）",
         "",
         "## 执行命令",
         "",

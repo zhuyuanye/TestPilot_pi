@@ -119,7 +119,7 @@ RUOYI_ENABLE_SELF_DELETE_TEST=true \
 HEADLESS=true ./scripts/run-ui-tests.sh
 ```
 
-结果：`BUILD SUCCESS`，1 次执行，1 通过。通过真实 Vue 页面完成登录、新增、搜索确认、删除及列表消失验证，并通过 API 兜底清理。
+结果：`BUILD SUCCESS`，1 次执行，1 通过。通过真实 Vue 页面完成登录、新增、搜索确认、删除及列表消失验证，并通过 API 兜底清理。本次运行同时生成 Playwright `trace.zip`、新增查询截图、删除完成截图，并在独立 UI 报告中记录 SHA-256。
 
 ## 5. 通过结果
 

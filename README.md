@@ -65,4 +65,4 @@ export RUOYI_ADMIN_PASSWORD='<test-password>'
 
 完整 API 验收会如实报告当前需求差异，因此整体返回非零状态属于预期测试结论，不应通过降低断言变成绿色。
 
-UI 测试每次执行后会将 Surefire XML 转换并落地为 `outputs/ui-test-execution-report.md`；失败截图保留在被 Git 忽略的 `automation/ui/target/screenshots/`。
+UI 测试每次执行后会将 Surefire XML 转换并落地为 `outputs/ui-test-execution-report.md`；Playwright Trace、成功步骤截图和失败截图保留在被 Git 忽略的 `automation/ui/target/evidence/`，报告中记录文件路径、大小及 SHA-256。
